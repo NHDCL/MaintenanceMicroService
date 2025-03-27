@@ -8,8 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface PreventiveMaintenanceRepository extends MongoRepository<PreventiveMaintenance, Integer> {
-    
+public interface PreventiveMaintenanceRepository extends MongoRepository<PreventiveMaintenance, String> {
     // Custom query methods
 
     // Find all maintenance records by status
@@ -24,3 +23,4 @@ public interface PreventiveMaintenanceRepository extends MongoRepository<Prevent
     // Find all maintenance records for a specific asset
     List<PreventiveMaintenance> findByAssetCode(String assetCode);
 }
+

@@ -28,12 +28,12 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
     }
 
     @Override
-    public Optional<PreventiveMaintenance> getMaintenanceById(int maintenanceID) {
+    public Optional<PreventiveMaintenance> getMaintenanceById(String maintenanceID) {
         return maintenanceRepository.findById(maintenanceID);
     }
 
     @Override
-    public void deleteMaintenance(int maintenanceID) {
+    public void deleteMaintenance(String maintenanceID) {
         maintenanceRepository.deleteById(maintenanceID);
     }
 

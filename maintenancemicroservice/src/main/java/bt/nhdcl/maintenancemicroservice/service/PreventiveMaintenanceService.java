@@ -14,10 +14,10 @@ public interface PreventiveMaintenanceService {
     List<PreventiveMaintenance> getAllMaintenance();
 
     // Get a maintenance record by ID
-    Optional<PreventiveMaintenance> getMaintenanceById(int maintenanceID);
+    Optional<PreventiveMaintenance> getMaintenanceById(String maintenanceID);
 
     // Delete a maintenance record by ID
-    void deleteMaintenance(int maintenanceID);
+    void deleteMaintenance(String maintenanceID);
 
     // Get maintenance records by status
     List<PreventiveMaintenance> getMaintenanceByStatus(String status);

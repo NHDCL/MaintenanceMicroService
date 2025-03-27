@@ -34,14 +34,14 @@ public class PreventiveMaintenanceController {
 
     // Get a maintenance record by ID
     @GetMapping("/{id}")
-    public ResponseEntity<PreventiveMaintenance> getMaintenanceById(@PathVariable int id) {
+    public ResponseEntity<PreventiveMaintenance> getMaintenanceById(@PathVariable String id) {
         Optional<PreventiveMaintenance> maintenance = maintenanceService.getMaintenanceById(id);
         return maintenance.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Delete a maintenance record by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMaintenance(@PathVariable int id) {
+    public ResponseEntity<Void> deleteMaintenance(@PathVariable String id) {
         maintenanceService.deleteMaintenance(id);
         return ResponseEntity.noContent().build();
     }
