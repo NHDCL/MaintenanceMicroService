@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface RepairService {
-    Repair createRepair(Repair repair, MultipartFile imageFile);
+    Repair createRepair(Repair repair, MultipartFile[] imageFiles);
     List<Repair> getAllRepairs();
     Optional<Repair> getRepairById(String repairID);
     Repair updateRepair(String repairID, Repair repair);

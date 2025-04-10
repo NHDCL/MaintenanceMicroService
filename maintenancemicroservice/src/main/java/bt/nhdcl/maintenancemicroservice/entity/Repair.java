@@ -3,6 +3,7 @@ package bt.nhdcl.maintenancemicroservice.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDate;
+import java.util.List;
 
 @Document(collection = "maintenance")
 public class Repair {
@@ -14,7 +15,7 @@ public class Repair {
     private String email;
     private String priority;
     private String area;
-    private String image;
+    private List<String> images;
     private String description;
     private String assetName;
     private LocalDate submissionDate;  // Automatically generated
@@ -28,14 +29,14 @@ public class Repair {
     }
 
     public Repair(String repairID, String name, String phoneNumber, String email, String priority, String area,
-                  String image, String description, String assetName, boolean scheduled, String assetCode) {
+    List<String> images, String description, String assetName, boolean scheduled, String assetCode) {
         this.repairID = repairID;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.priority = priority;
         this.area = area;
-        this.image = image;
+        this.images = images;
         this.description = description;
         this.assetName = assetName;
         this.submissionDate = LocalDate.now();  // Automatically generate the submission date
@@ -92,12 +93,12 @@ public class Repair {
         this.area = area;
     }
 
-    public String getImage() {
-        return image;
+    public List<String> getImages() {
+        return images;
     }
-
-    public void setImage(String image) {
-        this.image = image;
+    
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 
     public String getDescription() {

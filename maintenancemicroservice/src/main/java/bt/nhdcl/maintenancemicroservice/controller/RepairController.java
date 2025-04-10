@@ -25,22 +25,32 @@ public class RepairController {
 
     // Create a new repair
     @PostMapping
-public ResponseEntity<Repair> createRepair(@RequestParam("repair") String repairJson,
-                                           @RequestParam("image") MultipartFile imageFile) {
-    try {
-        // Deserialize the repairJson into a Repair object using ObjectMapper
-        Repair repair = new ObjectMapper().readValue(repairJson, Repair.class);
-        
-        // Create repair using the service
-        Repair createdRepair = repairService.createRepair(repair, imageFile);
-        
+    public ResponseEntity<Repair> createRepair(
+            @RequestParam String name,
+            @RequestParam String phoneNumber,
+            @RequestParam String email,
+            @RequestParam String priority,
+            @RequestParam String area,
+            @RequestParam String description,
+            @RequestParam String assetName,
+            @RequestParam boolean scheduled,
+            @RequestParam String assetCode,
+            @RequestParam("images") MultipartFile[] imageFiles) {
+
+        Repair repair = new Repair();
+        repair.setName(name);
+        repair.setPhoneNumber(phoneNumber);
+        repair.setEmail(email);
+        repair.setPriority(priority);
+        repair.setArea(area);
+        repair.setDescription(description);
+        repair.setAssetName(assetName);
+        repair.setScheduled(scheduled);
+        repair.setAssetCode(assetCode);
+
+        Repair createdRepair = repairService.createRepair(repair, imageFiles);
         return new ResponseEntity<>(createdRepair, HttpStatus.CREATED);
-    } catch (JsonProcessingException e) {
-        // Handle the exception (e.g., log it, return a bad request response)
-        e.printStackTrace();  // Log the exception
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);  // Return 400 Bad Request if JSON is invalid
     }
-}
 
     // Get all repairs
     @GetMapping
