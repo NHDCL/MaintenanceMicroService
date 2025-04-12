@@ -14,6 +14,7 @@ public class Repair {
     private String phoneNumber;
     private String email;
     private String priority;
+    private String status;
     private String area;
     private List<String> images;
     private String description;
@@ -28,13 +29,14 @@ public class Repair {
         this.submissionDate = LocalDate.now();
     }
 
-    public Repair(String repairID, String name, String phoneNumber, String email, String priority, String area,
+    public Repair(String repairID, String name, String phoneNumber, String email, String priority, String status,String area,
     List<String> images, String description, String assetName, boolean scheduled, String assetCode) {
         this.repairID = repairID;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.priority = priority;
+        this.status = status;
         this.area = area;
         this.images = images;
         this.description = description;
@@ -83,6 +85,14 @@ public class Repair {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getArea() {

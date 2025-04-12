@@ -30,6 +30,7 @@ public class RepairController {
             @RequestParam String phoneNumber,
             @RequestParam String email,
             @RequestParam String priority,
+            @RequestParam String status,
             @RequestParam String area,
             @RequestParam String description,
             @RequestParam String assetName,
@@ -42,6 +43,7 @@ public class RepairController {
         repair.setPhoneNumber(phoneNumber);
         repair.setEmail(email);
         repair.setPriority(priority);
+        repair.setStatus(status);
         repair.setArea(area);
         repair.setDescription(description);
         repair.setAssetName(assetName);
