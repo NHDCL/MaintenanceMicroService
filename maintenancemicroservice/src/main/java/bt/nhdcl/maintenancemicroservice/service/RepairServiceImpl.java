@@ -10,6 +10,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.Cloudinary;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,20 +27,28 @@ public class RepairServiceImpl implements RepairService {
         this.cloudinary = cloudinary;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Repair createRepair(Repair repair, MultipartFile imageFile) {
-        if (imageFile != null && !imageFile.isEmpty()) {
-            // Upload image to Cloudinary
-            try {
-                Map<String, String> uploadResult = cloudinary.uploader().upload(imageFile.getBytes(), ObjectUtils.emptyMap());
-                String imageUrl = uploadResult.get("url"); // Get the URL of the uploaded image
-                repair.setImage(imageUrl); // Set the image URL in the Repair entity
-            } catch (IOException e) {
-                e.printStackTrace();
-                // Handle exception appropriately (log, rethrow, etc.)
+    public Repair createRepair(Repair repair, MultipartFile[] imageFiles) {
+        List<String> imageUrls = new ArrayList<>();
+
+        if (imageFiles != null && imageFiles.length > 0) {
+            for (MultipartFile file : imageFiles) {
+                if (file != null && !file.isEmpty()) {
+                    try {
+                        Map<String, String> uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                                ObjectUtils.emptyMap());
+                        String imageUrl = uploadResult.get("url");
+                        imageUrls.add(imageUrl); // Add each uploaded image URL to the list
+                    } catch (IOException e) {
+                        e.printStackTrace(); // Log or handle the exception
+                    }
+                }
             }
         }
-        return repairRepository.save(repair); // Save the repair with the image URL
+
+        repair.setImages(imageUrls); // Set the list of image URLs in the Repair entity
+        return repairRepository.save(repair);
     }
 
     @Override
@@ -55,10 +64,10 @@ public class RepairServiceImpl implements RepairService {
     @Override
     public Repair updateRepair(String repairID, Repair repair) {
         if (repairRepository.existsById(repairID)) {
-            repair.setRepairID(repairID);  // Ensure the repair ID is set
+            repair.setRepairID(repairID); // Ensure the repair ID is set
             return repairRepository.save(repair);
         }
-        return null;  // Or handle it based on your use case
+        return null; // Or handle it based on your use case
     }
 
     @Override
