@@ -1,10 +1,14 @@
 package bt.nhdcl.maintenancemicroservice.controller;
 
 import bt.nhdcl.maintenancemicroservice.entity.PreventiveMaintenanceReport;
+import bt.nhdcl.maintenancemicroservice.entity.RepairReport;
 import bt.nhdcl.maintenancemicroservice.service.PreventiveMaintenanceReportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,9 +24,33 @@ public class PreventiveMaintenanceReportController {
 
     // Create a new Maintenance Report
     @PostMapping
-    public ResponseEntity<PreventiveMaintenanceReport> createReport(@RequestBody PreventiveMaintenanceReport report) {
-        PreventiveMaintenanceReport savedReport = service.saveReport(report);
-        return ResponseEntity.ok(savedReport);
+    public ResponseEntity<PreventiveMaintenanceReport> createReport(
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestParam(required = false) String finishedDate,
+            @RequestParam int totalCost,
+            @RequestParam String information,
+            @RequestParam String partsUsed,
+            @RequestParam String technicians,
+            @RequestParam String preventiveMaintenanceID,
+            @RequestParam(value = "images", required = false) List<MultipartFile> imageFiles) {
+        PreventiveMaintenanceReport report = new PreventiveMaintenanceReport();
+
+        if (startTime != null)
+            report.setStartTime(LocalTime.parse(startTime));
+        if (endTime != null)
+            report.setEndTime(LocalTime.parse(endTime));
+        if (finishedDate != null)
+            report.setFinishedDate(LocalDate.parse(finishedDate));
+
+        report.setTotalCost(totalCost);
+        report.setInformation(information);
+        report.setPartsUsed(partsUsed);
+        report.setTechnicians(technicians);
+        report.setPreventiveMaintenanceID(preventiveMaintenanceID);
+
+        PreventiveMaintenanceReport created = service.createReport(report, imageFiles);
+        return ResponseEntity.ok(created);
     }
 
     // Get all Maintenance Reports

@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Document(collection = "maintenance_report") // MongoDB collection name
 public class PreventiveMaintenanceReport {
@@ -19,7 +20,8 @@ public class PreventiveMaintenanceReport {
     private String information;
     private String partsUsed;
     private String technicians;
-    private String preventiveMaintenanceID; // Foreign key reference (assumed as String)
+    private String preventiveMaintenanceID;
+    private List<String> images;
 
     // Default Constructor
     public PreventiveMaintenanceReport() {}
@@ -27,7 +29,7 @@ public class PreventiveMaintenanceReport {
     // Parameterized Constructor
     public PreventiveMaintenanceReport(String maintenanceReportID, LocalTime startTime, LocalTime endTime, 
                              LocalDate finishedDate, int totalCost, String information, 
-                             String partsUsed, String technicians, String preventiveMaintenanceID) {
+                             String partsUsed, String technicians, String preventiveMaintenanceID, List<String> images) {
         this.maintenanceReportID = maintenanceReportID;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -37,6 +39,7 @@ public class PreventiveMaintenanceReport {
         this.partsUsed = partsUsed;
         this.technicians = technicians;
         this.preventiveMaintenanceID = preventiveMaintenanceID;
+        this.images = images;
     }
 
     // Getters and Setters
@@ -110,6 +113,13 @@ public class PreventiveMaintenanceReport {
 
     public void setPreventiveMaintenanceID(String preventiveMaintenanceID) {
         this.preventiveMaintenanceID = preventiveMaintenanceID;
+    }
+    public List<String> getImages() {
+        return images;
+    }
+    
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 }
 

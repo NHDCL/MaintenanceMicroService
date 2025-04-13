@@ -22,6 +22,8 @@ public class RepairServiceImpl implements RepairService {
     private final Cloudinary cloudinary;
 
     @Autowired
+    private EmailService emailService;
+
     public RepairServiceImpl(RepairRepository repairRepository, Cloudinary cloudinary) {
         this.repairRepository = repairRepository;
         this.cloudinary = cloudinary;
@@ -76,30 +78,50 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public boolean acceptRepairById(String repairId) {
+    public Boolean acceptRepairById(String repairId, Boolean accept) {
         Optional<Repair> optionalRepair = repairRepository.findById(repairId);
 
         if (optionalRepair.isPresent()) {
             Repair repair = optionalRepair.get();
-            repair.setAccept(true);  // Set accept to true
-            repairRepository.save(repair);  // Save the updated object
-            return true;  // Successfully updated
+            repair.setAccept(accept);
+            repairRepository.save(repair);
+
+            String email = repair.getEmail();
+            String subject = accept ? "Repair Request Accepted" : "Repair Request Rejected";
+            String body = accept
+                    ? "Dear " + repair.getName() + ",\n\n"
+                            + "We are pleased to inform you that your repair request for the asset: "
+                            + repair.getAssetName() + " has been accepted and is now in process.\n\n"
+                            + "Thank you,\n\n"
+                            + "NHDCL"
+                    : "Dear " + repair.getName() + ",\n\n"
+                            + "We regret to inform you that your repair request for the asset: "
+                            + repair.getAssetName() + " has been rejected.\n\n"
+                            + "Thank you for your understanding.\n\n"
+                            + "NHDCL";
+
+            emailService.sendEmail(email, subject, body);
+
+            return true;
         }
 
-        return false;  // Repair with given ID not found
+        return false;
     }
 
     @Override
-    public boolean scheduleRepairById(String repairId) {
+    public boolean setScheduleTrue(String repairId) {
+        // Find the repair record by reportId
         Optional<Repair> optionalRepair = repairRepository.findById(repairId);
 
         if (optionalRepair.isPresent()) {
             Repair repair = optionalRepair.get();
-            repair.setScheduled(true);  // Set accept to true
-            repairRepository.save(repair);  // Save the updated object
-            return true;  // Successfully updated
+            // Set schedule flag to true
+            repair.setScheduled(true);
+            repairRepository.save(repair);
+            return true;
         }
 
-        return false;  // Repair with given ID not found
+        return false;
     }
+
 }

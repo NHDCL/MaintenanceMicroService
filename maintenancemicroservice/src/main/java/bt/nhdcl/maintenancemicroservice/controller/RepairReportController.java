@@ -5,7 +5,10 @@ import bt.nhdcl.maintenancemicroservice.service.RepairReportService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +24,33 @@ public class RepairReportController {
 
     // Create a new repair report
     @PostMapping
-    public ResponseEntity<RepairReport> createRepairReport(@RequestBody RepairReport repairReport) {
-        RepairReport createdRepairReport = repairReportService.createRepairReport(repairReport);
-        return new ResponseEntity<>(createdRepairReport, HttpStatus.CREATED);
+    public ResponseEntity<RepairReport> createRepairReport(
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestParam(required = false) String finishedDate,
+            @RequestParam int totalCost,
+            @RequestParam String information,
+            @RequestParam String partsUsed,
+            @RequestParam String technicians,
+            @RequestParam String repairID,
+            @RequestParam(value = "images", required = false) List<MultipartFile> imageFiles) {
+        RepairReport report = new RepairReport();
+
+        if (startTime != null)
+            report.setStartTime(LocalTime.parse(startTime));
+        if (endTime != null)
+            report.setEndTime(LocalTime.parse(endTime));
+        if (finishedDate != null)
+            report.setFinishedDate(LocalDate.parse(finishedDate));
+
+        report.setTotalCost(totalCost);
+        report.setInformation(information);
+        report.setPartsUsed(partsUsed);
+        report.setTechnicians(technicians);
+        report.setRepairID(repairID);
+
+        RepairReport created = repairReportService.createRepairReport(report, imageFiles);
+        return ResponseEntity.ok(created);
     }
 
     // Get all repair reports
@@ -50,8 +77,8 @@ public class RepairReportController {
 
     // Update a repair report by ID
     @PutMapping("/{repairReportID}")
-    public ResponseEntity<RepairReport> updateRepairReport(@PathVariable String repairReportID, 
-                                                           @RequestBody RepairReport repairReport) {
+    public ResponseEntity<RepairReport> updateRepairReport(@PathVariable String repairReportID,
+            @RequestBody RepairReport repairReport) {
         RepairReport updatedRepairReport = repairReportService.updateRepairReport(repairReportID, repairReport);
         return updatedRepairReport != null
                 ? new ResponseEntity<>(updatedRepairReport, HttpStatus.OK)

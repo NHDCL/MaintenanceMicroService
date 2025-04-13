@@ -4,8 +4,10 @@ import bt.nhdcl.maintenancemicroservice.entity.RepairReport;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public interface RepairReportService {
-    RepairReport createRepairReport(RepairReport repairReport);
+    RepairReport createRepairReport(RepairReport repairReport, List<MultipartFile> imageFiles);
     List<RepairReport> getAllRepairReports();
     Optional<RepairReport> getRepairReportById(String repairReportID);
     List<RepairReport> getRepairReportsByRepairID(String repairID);

@@ -1,16 +1,16 @@
 package bt.nhdcl.maintenancemicroservice.controller;
 
 import bt.nhdcl.maintenancemicroservice.entity.Repair;
+import bt.nhdcl.maintenancemicroservice.service.EmailService;
 import bt.nhdcl.maintenancemicroservice.service.RepairService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -18,6 +18,9 @@ import java.util.Optional;
 public class RepairController {
 
     private final RepairService repairService;
+
+    @Autowired
+    private EmailService emailService;
 
     public RepairController(RepairService repairService) {
         this.repairService = repairService;
@@ -86,24 +89,62 @@ public class RepairController {
         repairService.deleteRepair(repairID);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-    @PutMapping("/{id}/accept")
-    public ResponseEntity<String> acceptRepair(@PathVariable String id) {
-        boolean updated = repairService.acceptRepairById(id);
 
-        if (updated) {
-            return ResponseEntity.ok("Repair accepted successfully.");
+    @PutMapping("/{repairId}/accept")
+    public ResponseEntity<String> acceptOrRejectRepair(
+            @PathVariable String repairId,
+            @RequestBody Map<String, Boolean> requestBody) {
+
+        // Get the 'accept' value directly from the request body
+        Boolean accept = requestBody.get("accept");
+
+        if (accept == null) {
+            return ResponseEntity
+                    .status(400)
+                    .body("'accept' field is missing or invalid in the request body.");
+        }
+
+        // Proceed with the logic to accept or reject based on the 'accept' value
+        Boolean result = repairService.acceptRepairById(repairId, accept);
+
+        if (result) {
+            String message = accept
+                    ? "Repair request accepted and email sent."
+                    : "Repair request rejected and email sent.";
+            return ResponseEntity.ok(message);
         } else {
-            return ResponseEntity.status(404).body("Repair not found.");
+            return ResponseEntity
+                    .status(404)
+                    .body("Repair request with ID " + repairId + " not found.");
         }
     }
-    @PutMapping("/{id}/schedule")
-    public ResponseEntity<String> acceptSchedule(@PathVariable String id) {
-        boolean updated = repairService.scheduleRepairById(id);
 
-        if (updated) {
-            return ResponseEntity.ok("Repair schedule successfully.");
+    @PutMapping("/schedule/{repairId}")
+    public ResponseEntity<String> assignRepair(
+            @PathVariable String repairId,
+            @RequestBody Map<String, String> request) {
+
+        String email = request.get("email");
+
+        boolean scheduled = repairService.setScheduleTrue(repairId);
+
+        if (scheduled) {
+            // Compose structured email
+            String subject = "Repair Task Assigned";
+            String body = "Dear Supervisor,\n\n"
+                    + "We would like to inform you that the repair task with Report ID: " + repairId
+                    + " has been assigned to you.\n\n"
+                    + "Please ensure the task is completed as early as possible. Your effort and timely response are highly appreciated.\n\n"
+                    + "Best regards,\n"
+                    + "NHDCL";
+
+            emailService.sendEmail(email, subject, body);
+
+            return ResponseEntity.ok("Repair task assigned and email sent to " + email);
         } else {
-            return ResponseEntity.status(404).body("Repair not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Repair with ID " + repairId + " not found.");
         }
     }
+
 }

@@ -13,6 +13,6 @@ public interface RepairService {
     Optional<Repair> getRepairById(String repairID);
     Repair updateRepair(String repairID, Repair repair);
     void deleteRepair(String repairID);
-    boolean acceptRepairById(String repairId);
-    boolean scheduleRepairById(String repairId);
+    Boolean acceptRepairById(String repairId, Boolean accept);
+    boolean setScheduleTrue(String repairId);
 }

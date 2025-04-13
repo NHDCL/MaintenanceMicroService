@@ -1,10 +1,20 @@
 package bt.nhdcl.maintenancemicroservice.service;
 
 import bt.nhdcl.maintenancemicroservice.entity.PreventiveMaintenanceReport;
+import bt.nhdcl.maintenancemicroservice.entity.RepairReport;
 import bt.nhdcl.maintenancemicroservice.repository.PreventiveMaintenanceReportRepository;
-import org.springframework.stereotype.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -16,8 +26,28 @@ public class PreventiveMaintenanceReportServiceImpl implements PreventiveMainten
         this.repository = repository;
     }
 
+    @Autowired
+    private Cloudinary cloudinary;
+
+    @SuppressWarnings("unchecked")
     @Override
-    public PreventiveMaintenanceReport saveReport(PreventiveMaintenanceReport report) {
+    public PreventiveMaintenanceReport createReport(PreventiveMaintenanceReport report, List<MultipartFile> imageFiles) {
+        List<String> imageUrls = new ArrayList<>();
+
+        if (imageFiles != null) {
+            for (MultipartFile image : imageFiles) {
+                try {
+                    // Properly parameterizing the Map type
+                    Map<String, Object> uploadResult = cloudinary.uploader().upload(image.getBytes(),
+                            ObjectUtils.emptyMap());
+                    imageUrls.add((String) uploadResult.get("secure_url"));
+                } catch (IOException e) {
+                    throw new RuntimeException("Image upload failed: " + e.getMessage());
+                }
+            }
+        }
+
+        report.setImages(imageUrls);
         return repository.save(report);
     }
 

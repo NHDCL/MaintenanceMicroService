@@ -21,7 +21,7 @@ public class Repair {
     private String assetName;
     private LocalDateTime submissionDate;  // Automatically generated
     private boolean scheduled;
-    private boolean accept;
+    private Boolean accept;
     private String academyId;
     private String assetCode;
 
@@ -32,7 +32,7 @@ public class Repair {
     }
 
     public Repair(String repairID, String name, String phoneNumber, String email, String priority, String status,String area,
-    List<String> images, String description, String assetName, boolean scheduled,boolean accept, String academyId, String assetCode) {
+    List<String> images, String description, String assetName, boolean scheduled,Boolean accept, String academyId, String assetCode) {
         this.repairID = repairID;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -147,11 +147,11 @@ public class Repair {
         this.scheduled = scheduled;
     }
 
-    public boolean isAccept() {
+    public Boolean isAccept() {
         return accept;
     }
 
-    public void setAccept(boolean accept) {
+    public void setAccept(Boolean accept) {
         this.accept = accept;
     }
 
