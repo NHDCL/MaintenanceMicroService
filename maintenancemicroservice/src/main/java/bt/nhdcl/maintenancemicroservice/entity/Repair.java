@@ -2,7 +2,7 @@ package bt.nhdcl.maintenancemicroservice.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "maintenance")
@@ -19,18 +19,20 @@ public class Repair {
     private List<String> images;
     private String description;
     private String assetName;
-    private LocalDate submissionDate;  // Automatically generated
+    private LocalDateTime submissionDate;  // Automatically generated
     private boolean scheduled;
+    private boolean accept;
+    private String academyId;
     private String assetCode;
 
     // Constructors
     public Repair() {
         // Automatically generate the submission date
-        this.submissionDate = LocalDate.now();
+        this.submissionDate = LocalDateTime.now();
     }
 
     public Repair(String repairID, String name, String phoneNumber, String email, String priority, String status,String area,
-    List<String> images, String description, String assetName, boolean scheduled, String assetCode) {
+    List<String> images, String description, String assetName, boolean scheduled,boolean accept, String academyId, String assetCode) {
         this.repairID = repairID;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -41,8 +43,10 @@ public class Repair {
         this.images = images;
         this.description = description;
         this.assetName = assetName;
-        this.submissionDate = LocalDate.now();  // Automatically generate the submission date
+        this.submissionDate = LocalDateTime.now();  // Automatically generate the submission date
         this.scheduled = scheduled;
+        this.accept = accept;
+        this.academyId = academyId;
         this.assetCode = assetCode;
     }
 
@@ -127,11 +131,11 @@ public class Repair {
         this.assetName = assetName;
     }
 
-    public LocalDate getSubmissionDate() {
+    public LocalDateTime getSubmissionDate() {
         return submissionDate;
     }
 
-    public void setSubmissionDate(LocalDate submissionDate) {
+    public void setSubmissionDate(LocalDateTime submissionDate) {
         this.submissionDate = submissionDate;
     }
 
@@ -141,6 +145,22 @@ public class Repair {
 
     public void setScheduled(boolean scheduled) {
         this.scheduled = scheduled;
+    }
+
+    public boolean isAccept() {
+        return accept;
+    }
+
+    public void setAccept(boolean accept) {
+        this.accept = accept;
+    }
+
+    public String getAcademyId() {
+        return academyId;
+    }
+
+    public void setAcademyId(String academyId) {
+        this.academyId = academyId;
     }
 
     public String getAssetCode() {

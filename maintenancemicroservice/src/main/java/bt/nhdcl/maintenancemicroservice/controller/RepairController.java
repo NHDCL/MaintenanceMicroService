@@ -35,6 +35,7 @@ public class RepairController {
             @RequestParam String description,
             @RequestParam String assetName,
             @RequestParam boolean scheduled,
+            @RequestParam String academyId,
             @RequestParam String assetCode,
             @RequestParam("images") MultipartFile[] imageFiles) {
 
@@ -48,6 +49,7 @@ public class RepairController {
         repair.setDescription(description);
         repair.setAssetName(assetName);
         repair.setScheduled(scheduled);
+        repair.setAcademyId(academyId);
         repair.setAssetCode(assetCode);
 
         Repair createdRepair = repairService.createRepair(repair, imageFiles);
@@ -83,5 +85,25 @@ public class RepairController {
     public ResponseEntity<Void> deleteRepair(@PathVariable String repairID) {
         repairService.deleteRepair(repairID);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @PutMapping("/{id}/accept")
+    public ResponseEntity<String> acceptRepair(@PathVariable String id) {
+        boolean updated = repairService.acceptRepairById(id);
+
+        if (updated) {
+            return ResponseEntity.ok("Repair accepted successfully.");
+        } else {
+            return ResponseEntity.status(404).body("Repair not found.");
+        }
+    }
+    @PutMapping("/{id}/schedule")
+    public ResponseEntity<String> acceptSchedule(@PathVariable String id) {
+        boolean updated = repairService.scheduleRepairById(id);
+
+        if (updated) {
+            return ResponseEntity.ok("Repair schedule successfully.");
+        } else {
+            return ResponseEntity.status(404).body("Repair not found.");
+        }
     }
 }

@@ -21,10 +21,7 @@ public interface PreventiveMaintenanceService {
 
     // Get maintenance records by status
     List<PreventiveMaintenance> getMaintenanceByStatus(String status);
-
-    // Get scheduled maintenance records
-    List<PreventiveMaintenance> getScheduledMaintenance(boolean scheduled);
-
+    
     // Get maintenance records by start date
     List<PreventiveMaintenance> getMaintenanceByStartDate(LocalDate startDate);
 

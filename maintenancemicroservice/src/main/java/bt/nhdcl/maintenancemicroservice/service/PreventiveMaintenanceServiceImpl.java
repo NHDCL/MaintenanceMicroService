@@ -43,11 +43,6 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
     }
 
     @Override
-    public List<PreventiveMaintenance> getScheduledMaintenance(boolean scheduled) {
-        return maintenanceRepository.findByScheduled(scheduled);
-    }
-
-    @Override
     public List<PreventiveMaintenance> getMaintenanceByStartDate(LocalDate startDate) {
         return maintenanceRepository.findByStartDate(startDate);
     }

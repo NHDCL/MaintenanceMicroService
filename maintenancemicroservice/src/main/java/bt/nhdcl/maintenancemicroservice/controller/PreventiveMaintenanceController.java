@@ -52,12 +52,6 @@ public class PreventiveMaintenanceController {
         return ResponseEntity.ok(maintenanceService.getMaintenanceByStatus(status));
     }
 
-    // Get scheduled maintenance records
-    @GetMapping("/scheduled/{scheduled}")
-    public ResponseEntity<List<PreventiveMaintenance>> getScheduledMaintenance(@PathVariable boolean scheduled) {
-        return ResponseEntity.ok(maintenanceService.getScheduledMaintenance(scheduled));
-    }
-
     // Get maintenance records by start date
     @GetMapping("/date/{startDate}")
     public ResponseEntity<List<PreventiveMaintenance>> getMaintenanceByStartDate(@PathVariable String startDate) {

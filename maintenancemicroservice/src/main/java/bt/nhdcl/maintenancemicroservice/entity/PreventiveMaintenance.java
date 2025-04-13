@@ -17,7 +17,6 @@ public class PreventiveMaintenance {
     private int addHours;
     private String remark;
     private String status;
-    private boolean scheduled;
     private String description;
     private String assignedSupervisors;
     private LocalDate endDate;
@@ -29,7 +28,7 @@ public class PreventiveMaintenance {
     public PreventiveMaintenance() {}
 
     public PreventiveMaintenance(String maintenanceID, LocalTime timeStart, LocalDate startDate, int addCost, int addHours,
-                       String remark, String status, boolean scheduled, String description, String assignedSupervisors,
+                       String remark, String status, String description, String assignedSupervisors,
                        LocalDate endDate, String repeat, int userID, String assetCode) {
         this.maintenanceID = maintenanceID;
         this.timeStart = timeStart;
@@ -38,7 +37,6 @@ public class PreventiveMaintenance {
         this.addHours = addHours;
         this.remark = remark;
         this.status = status;
-        this.scheduled = scheduled;
         this.description = description;
         this.assignedSupervisors = assignedSupervisors;
         this.endDate = endDate;
@@ -102,14 +100,6 @@ public class PreventiveMaintenance {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public boolean isScheduled() {
-        return scheduled;
-    }
-
-    public void setScheduled(boolean scheduled) {
-        this.scheduled = scheduled;
     }
 
     public String getDescription() {

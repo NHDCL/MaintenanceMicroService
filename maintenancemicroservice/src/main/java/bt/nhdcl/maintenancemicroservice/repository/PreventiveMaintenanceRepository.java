@@ -14,9 +14,6 @@ public interface PreventiveMaintenanceRepository extends MongoRepository<Prevent
     // Find all maintenance records by status
     List<PreventiveMaintenance> findByStatus(String status);
 
-    // Find all scheduled maintenance
-    List<PreventiveMaintenance> findByScheduled(boolean scheduled);
-
     // Find maintenance records by start date
     List<PreventiveMaintenance> findByStartDate(LocalDate startDate);
 

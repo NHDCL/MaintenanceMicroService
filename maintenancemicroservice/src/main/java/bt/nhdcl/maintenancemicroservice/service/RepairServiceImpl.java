@@ -74,4 +74,32 @@ public class RepairServiceImpl implements RepairService {
     public void deleteRepair(String repairID) {
         repairRepository.deleteById(repairID);
     }
+
+    @Override
+    public boolean acceptRepairById(String repairId) {
+        Optional<Repair> optionalRepair = repairRepository.findById(repairId);
+
+        if (optionalRepair.isPresent()) {
+            Repair repair = optionalRepair.get();
+            repair.setAccept(true);  // Set accept to true
+            repairRepository.save(repair);  // Save the updated object
+            return true;  // Successfully updated
+        }
+
+        return false;  // Repair with given ID not found
+    }
+
+    @Override
+    public boolean scheduleRepairById(String repairId) {
+        Optional<Repair> optionalRepair = repairRepository.findById(repairId);
+
+        if (optionalRepair.isPresent()) {
+            Repair repair = optionalRepair.get();
+            repair.setScheduled(true);  // Set accept to true
+            repairRepository.save(repair);  // Save the updated object
+            return true;  // Successfully updated
+        }
+
+        return false;  // Repair with given ID not found
+    }
 }
