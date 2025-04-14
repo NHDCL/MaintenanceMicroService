@@ -27,4 +27,7 @@ public interface PreventiveMaintenanceService {
 
     // Get maintenance records by asset code
     List<PreventiveMaintenance> getMaintenanceByAssetCode(String assetCode);
+
+    PreventiveMaintenance update(String maintenanceID, PreventiveMaintenance maintenance);
+
 }

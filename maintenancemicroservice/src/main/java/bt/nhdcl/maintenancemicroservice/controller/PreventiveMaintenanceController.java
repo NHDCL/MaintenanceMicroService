@@ -64,4 +64,9 @@ public class PreventiveMaintenanceController {
     public ResponseEntity<List<PreventiveMaintenance>> getMaintenanceByAssetCode(@PathVariable String assetCode) {
         return ResponseEntity.ok(maintenanceService.getMaintenanceByAssetCode(assetCode));
     }
+
+    @PutMapping("/{id}")
+    public PreventiveMaintenance update(@PathVariable String id, @RequestBody PreventiveMaintenance maintenance) {
+        return maintenanceService.update(id, maintenance);
+    }
 }

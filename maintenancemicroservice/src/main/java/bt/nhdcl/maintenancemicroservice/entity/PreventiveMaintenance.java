@@ -21,7 +21,7 @@ public class PreventiveMaintenance {
     private String assignedSupervisors;
     private LocalDate endDate;
     private String repeat;
-    private int userID;
+    private String userID;
     private String assetCode;
 
     // Constructors
@@ -29,7 +29,7 @@ public class PreventiveMaintenance {
 
     public PreventiveMaintenance(String maintenanceID, LocalTime timeStart, LocalDate startDate, int addCost, int addHours,
                        String remark, String status, String description, String assignedSupervisors,
-                       LocalDate endDate, String repeat, int userID, String assetCode) {
+                       LocalDate endDate, String repeat, String userID, String assetCode) {
         this.maintenanceID = maintenanceID;
         this.timeStart = timeStart;
         this.startDate = startDate;
@@ -134,11 +134,11 @@ public class PreventiveMaintenance {
         this.repeat = repeat;
     }
 
-    public int getUserID() {
+    public String getUserID() {
         return userID;
     }
 
-    public void setUserID(int userID) {
+    public void setUserID(String userID) {
         this.userID = userID;
     }
 

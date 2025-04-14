@@ -51,4 +51,51 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
     public List<PreventiveMaintenance> getMaintenanceByAssetCode(String assetCode) {
         return maintenanceRepository.findByAssetCode(assetCode);
     }
+
+    @Override
+    public PreventiveMaintenance update(String maintenanceID, PreventiveMaintenance updatedMaintenance) {
+        PreventiveMaintenance existing = maintenanceRepository.findById(maintenanceID)
+                .orElseThrow(() -> new RuntimeException("Maintenance not found with ID: " + maintenanceID));
+
+        // Conditionally update only non-null or valid fields
+        if (updatedMaintenance.getTimeStart() != null) {
+            existing.setTimeStart(updatedMaintenance.getTimeStart());
+        }
+        if (updatedMaintenance.getStartDate() != null) {
+            existing.setStartDate(updatedMaintenance.getStartDate());
+        }
+        if (updatedMaintenance.getAddCost() != 0) {
+            existing.setAddCost(updatedMaintenance.getAddCost());
+        }
+        if (updatedMaintenance.getAddHours() != 0) {
+            existing.setAddHours(updatedMaintenance.getAddHours());
+        }
+        if (updatedMaintenance.getRemark() != null) {
+            existing.setRemark(updatedMaintenance.getRemark());
+        }
+        if (updatedMaintenance.getStatus() != null) {
+            existing.setStatus(updatedMaintenance.getStatus());
+        }
+        if (updatedMaintenance.getDescription() != null) {
+            existing.setDescription(updatedMaintenance.getDescription());
+        }
+        if (updatedMaintenance.getAssignedSupervisors() != null) {
+            existing.setAssignedSupervisors(updatedMaintenance.getAssignedSupervisors());
+        }
+        if (updatedMaintenance.getEndDate() != null) {
+            existing.setEndDate(updatedMaintenance.getEndDate());
+        }
+        if (updatedMaintenance.getRepeat() != null) {
+            existing.setRepeat(updatedMaintenance.getRepeat());
+        }
+        if (updatedMaintenance.getUserID() != null) {
+            existing.setUserID(updatedMaintenance.getUserID());
+        }
+        if (updatedMaintenance.getAssetCode() != null) {
+            existing.setAssetCode(updatedMaintenance.getAssetCode());
+        }
+
+        return maintenanceRepository.save(existing);
+    }
+
 }
