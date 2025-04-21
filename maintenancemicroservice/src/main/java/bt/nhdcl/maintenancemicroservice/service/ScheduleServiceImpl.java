@@ -45,14 +45,30 @@ public class ScheduleServiceImpl implements ScheduleService {
     public Schedule updateSchedule(String scheduleID, Schedule updatedSchedule) {
         return scheduleRepository.findById(scheduleID)
                 .map(schedule -> {
-                    schedule.setStartTime(updatedSchedule.getStartTime());
-                    schedule.setReportingDate(updatedSchedule.getReportingDate());
-                    schedule.setAddCost(updatedSchedule.getAddCost());
-                    schedule.setAddHours(updatedSchedule.getAddHours());
-                    schedule.setRemark(updatedSchedule.getRemark());
-                    schedule.setTeamMember(updatedSchedule.getTeamMember());
-                    schedule.setUserID(updatedSchedule.getUserID());
-                    schedule.setRepairID(updatedSchedule.getRepairID());
+                    if (updatedSchedule.getStartTime() != null)
+                        schedule.setStartTime(updatedSchedule.getStartTime());
+
+                    if (updatedSchedule.getReportingDate() != null)
+                        schedule.setReportingDate(updatedSchedule.getReportingDate());
+
+                    if (updatedSchedule.getAddCost() != 0)
+                        schedule.setAddCost(updatedSchedule.getAddCost());
+
+                    if (updatedSchedule.getAddHours() != 0)
+                        schedule.setAddHours(updatedSchedule.getAddHours());
+
+                    if (updatedSchedule.getRemark() != null)
+                        schedule.setRemark(updatedSchedule.getRemark());
+
+                    if (updatedSchedule.getTeamMember() != null)
+                        schedule.setTeamMember(updatedSchedule.getTeamMember());
+
+                    if (updatedSchedule.getUserID() != null)
+                        schedule.setUserID(updatedSchedule.getUserID());
+
+                    if (updatedSchedule.getRepairID() != null)
+                        schedule.setRepairID(updatedSchedule.getRepairID());
+
                     return scheduleRepository.save(schedule);
                 })
                 .orElseThrow(() -> new RuntimeException("Schedule not found with ID: " + scheduleID));
