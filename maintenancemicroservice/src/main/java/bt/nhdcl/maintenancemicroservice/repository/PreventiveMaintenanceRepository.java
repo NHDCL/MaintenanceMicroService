@@ -19,5 +19,9 @@ public interface PreventiveMaintenanceRepository extends MongoRepository<Prevent
 
     // Find all maintenance records for a specific asset
     List<PreventiveMaintenance> findByAssetCode(String assetCode);
+
+    List<PreventiveMaintenance> findByStartDateAndStatus(LocalDate startDate, String status);
+
+    List<PreventiveMaintenance> findByUserID(String userID);
 }
 

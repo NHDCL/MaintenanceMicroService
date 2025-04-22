@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -68,5 +70,23 @@ public class PreventiveMaintenanceController {
     @PutMapping("/{id}")
     public PreventiveMaintenance update(@PathVariable String id, @RequestBody PreventiveMaintenance maintenance) {
         return maintenanceService.update(id, maintenance);
+    }
+
+    @PostMapping("/send-email")
+    public Map<String, String> sendRepairEmail(@RequestBody Map<String, String> request) {
+        String to = request.get("to");
+
+        maintenanceService.sendEmail(to);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Email sent successfully");
+        response.put("recipient", to);
+
+        return response;
+    }
+
+    @GetMapping("/user/{userID}")
+    public List<PreventiveMaintenance> getByUserID(@PathVariable String userID) {
+        return maintenanceService.getByUserID(userID);
     }
 }

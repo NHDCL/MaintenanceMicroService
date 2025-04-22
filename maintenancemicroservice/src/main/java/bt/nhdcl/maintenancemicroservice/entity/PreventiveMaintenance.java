@@ -22,6 +22,7 @@ public class PreventiveMaintenance {
     private LocalDate endDate;
     private String repeat;
     private String userID;
+    private String technicianEmail;
     private String assetCode;
 
     // Constructors
@@ -29,7 +30,7 @@ public class PreventiveMaintenance {
 
     public PreventiveMaintenance(String maintenanceID, LocalTime timeStart, LocalDate startDate, int addCost, int addHours,
                        String remark, String status, String description, String assignedSupervisors,
-                       LocalDate endDate, String repeat, String userID, String assetCode) {
+                       LocalDate endDate, String repeat, String userID, String technicianEmail, String assetCode) {
         this.maintenanceID = maintenanceID;
         this.timeStart = timeStart;
         this.startDate = startDate;
@@ -42,6 +43,7 @@ public class PreventiveMaintenance {
         this.endDate = endDate;
         this.repeat = repeat;
         this.userID = userID;
+        this.technicianEmail =technicianEmail;
         this.assetCode = assetCode;
     }
 
@@ -140,6 +142,14 @@ public class PreventiveMaintenance {
 
     public void setUserID(String userID) {
         this.userID = userID;
+    }
+
+    public String getTechnicianEmail() {
+        return technicianEmail;
+    }
+
+    public void setTechnicianEmail(String technicianEmail) {
+        this.technicianEmail = technicianEmail;
     }
 
     public String getAssetCode() {

@@ -30,4 +30,8 @@ public interface PreventiveMaintenanceService {
 
     PreventiveMaintenance update(String maintenanceID, PreventiveMaintenance maintenance);
 
+    void sendEmail(String to);
+
+    List<PreventiveMaintenance> getByUserID(String userID);
+
 }

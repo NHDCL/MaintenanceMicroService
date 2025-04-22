@@ -2,6 +2,8 @@ package bt.nhdcl.maintenancemicroservice.service;
 
 import bt.nhdcl.maintenancemicroservice.entity.PreventiveMaintenance;
 import bt.nhdcl.maintenancemicroservice.repository.PreventiveMaintenanceRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,8 +15,15 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
 
     private final PreventiveMaintenanceRepository maintenanceRepository;
 
-    public PreventiveMaintenanceServiceImpl(PreventiveMaintenanceRepository maintenanceRepository) {
+    @Autowired
+    private EmailService emailService;
+
+    public PreventiveMaintenanceServiceImpl(
+        PreventiveMaintenanceRepository maintenanceRepository,
+        EmailService emailService
+    ) {
         this.maintenanceRepository = maintenanceRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -98,4 +107,17 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
         return maintenanceRepository.save(existing);
     }
 
+    public void sendEmail(String to) {
+        String subject = "Preventive Maintenance Task Assigned";
+        String body = "Dear Supervisor,\n\n"
+                + "You have been assigned a new preventive maintenance task.\n\n"
+                + "Please complete it promptly.\n\n"
+                + "Regards,\nNHDCL";
+
+        emailService.sendEmail(to, subject, body);
+    }
+
+    public List<PreventiveMaintenance> getByUserID(String userID) {
+        return maintenanceRepository.findByUserID(userID);
+    }
 }
