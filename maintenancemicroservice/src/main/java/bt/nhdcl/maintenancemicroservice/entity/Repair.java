@@ -24,7 +24,6 @@ public class Repair {
     private Boolean accept;
     private String academyId;
     private String assetCode;
-    private String technicianEmail;
 
     // Constructors
     public Repair() {
@@ -33,7 +32,7 @@ public class Repair {
     }
 
     public Repair(String repairID, String name, String phoneNumber, String email, String priority, String status,String area,
-    List<String> images, String description, String assetName, boolean scheduled,Boolean accept, String academyId, String assetCode,String technicianEmail) {
+    List<String> images, String description, String assetName, boolean scheduled,Boolean accept, String academyId, String assetCode) {
         this.repairID = repairID;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -49,7 +48,6 @@ public class Repair {
         this.accept = accept;
         this.academyId = academyId;
         this.assetCode = assetCode;
-        this.technicianEmail = technicianEmail;
     }
 
     // Getters and Setters
@@ -171,13 +169,5 @@ public class Repair {
 
     public void setAssetCode(String assetCode) {
         this.assetCode = assetCode;
-    }
-
-    public String getTechnicianEmail() {
-        return technicianEmail;
-    }
-
-    public void setTechnicianEmail(String technicianEmail) {
-        this.technicianEmail = technicianEmail;
     }
 }

@@ -17,26 +17,26 @@ public class Schedule {
     private int addCost;
     private int addHours;
     private String remark;
-    private String teamMember;
     private String userID;
-    private String repairID; // Foreign key reference (assumed as String)
+    private String repairID;
+    private String technicianEmail;
 
     // Default Constructor
     public Schedule() {}
 
     // Parameterized Constructor
     public Schedule(String scheduleID, LocalTime startTime, LocalDate reportingDate, 
-                    int addCost, int addHours, String remark, String teamMember, 
-                    String userID, String repairID) {
+                    int addCost, int addHours, String remark,
+                    String userID, String repairID, String technicianEmail) {
         this.scheduleID = scheduleID;
         this.startTime = startTime;
         this.reportingDate = reportingDate;
         this.addCost = addCost;
         this.addHours = addHours;
         this.remark = remark;
-        this.teamMember = teamMember;
         this.userID = userID;
         this.repairID = repairID;
+        this.technicianEmail = technicianEmail;
     }
 
     // Getters and Setters
@@ -88,14 +88,6 @@ public class Schedule {
         this.remark = remark;
     }
 
-    public String getTeamMember() {
-        return teamMember;
-    }
-
-    public void setTeamMember(String teamMember) {
-        this.teamMember = teamMember;
-    }
-
     public String getUserID() {
         return userID;
     }
@@ -110,5 +102,13 @@ public class Schedule {
 
     public void setRepairID(String repairID) {
         this.repairID = repairID;
+    }
+
+    public String getTechnicianEmail() {
+        return technicianEmail;
+    }
+
+    public void setTechnicianEmail(String technicianEmail) {
+        this.technicianEmail = technicianEmail;
     }
 }

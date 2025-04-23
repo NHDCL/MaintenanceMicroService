@@ -60,8 +60,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                     if (updatedSchedule.getRemark() != null)
                         schedule.setRemark(updatedSchedule.getRemark());
 
-                    if (updatedSchedule.getTeamMember() != null)
-                        schedule.setTeamMember(updatedSchedule.getTeamMember());
+                    if (updatedSchedule.getTechnicianEmail() != null)
+                        schedule.setTechnicianEmail(updatedSchedule.getTechnicianEmail());
 
                     if (updatedSchedule.getUserID() != null)
                         schedule.setUserID(updatedSchedule.getUserID());
