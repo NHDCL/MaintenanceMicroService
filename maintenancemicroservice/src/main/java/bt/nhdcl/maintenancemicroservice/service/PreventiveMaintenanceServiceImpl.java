@@ -88,8 +88,8 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
         if (updatedMaintenance.getDescription() != null) {
             existing.setDescription(updatedMaintenance.getDescription());
         }
-        if (updatedMaintenance.getAssignedSupervisors() != null) {
-            existing.setAssignedSupervisors(updatedMaintenance.getAssignedSupervisors());
+        if (updatedMaintenance.getTechnicianEmail() != null) {
+            existing.setTechnicianEmail(updatedMaintenance.getTechnicianEmail());
         }
         if (updatedMaintenance.getEndDate() != null) {
             existing.setEndDate(updatedMaintenance.getEndDate());

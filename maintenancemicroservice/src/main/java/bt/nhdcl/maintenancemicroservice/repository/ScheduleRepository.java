@@ -11,4 +11,5 @@ import java.util.List;
 public interface ScheduleRepository extends MongoRepository<Schedule, String> {
     List<Schedule> findByUserID(String userID);
     List<Schedule> findByRepairID(String repairID);
+    List<Schedule> findByTechnicianEmail(String technicianEmail);
 }

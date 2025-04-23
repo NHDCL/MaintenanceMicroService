@@ -72,4 +72,9 @@ public class ScheduleController {
         scheduleService.deleteSchedule(scheduleID);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/technician/{email}")
+    public List<Schedule> getSchedulesByTechnicianEmail(@PathVariable String email) {
+        return scheduleService.getSchedulesByTechnicianEmail(email);
+    }
 }
