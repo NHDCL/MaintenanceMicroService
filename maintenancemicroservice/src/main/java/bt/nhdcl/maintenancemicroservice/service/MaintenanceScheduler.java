@@ -19,7 +19,7 @@ public class MaintenanceScheduler {
         this.mailService = mailService;
     }
 
-    @Scheduled(cron = "0 0 9 * * ?") // Runs every day at 9 AM
+    @Scheduled(cron = "0 0 9 * * ?")
     public void notifyTechnicians() {
         LocalDate today = LocalDate.now();
         LocalDate notifyDate = today.plusDays(7);
@@ -30,9 +30,7 @@ public class MaintenanceScheduler {
             String email = maintenance.getTechnicianEmail();
             String subject = "Upcoming Preventive Maintenance Alert";
             String message = String.format(
-                "Dear Technician,\n\nThis is a reminder that maintenance for an asset is scheduled on %s at %s.\n\nDescription: %s\n\nPlease ensure the task is completed as early as possible. Your effort and timely response are highly appreciated.\\n" + //
-                                        "\\n" + //
-                                        "Regards,\nNHDCL",
+                "Dear Technician,\n\nThis is a reminder that maintenance for an asset is scheduled on %s at %s.\n\nDescription: %s\n\nPlease ensure the task is completed as early as possible. Your effort and timely response are highly appreciated.\n\nRegards,\nNHDCL",
                 maintenance.getStartDate(),
                 maintenance.getTimeStart(),
                 maintenance.getDescription()

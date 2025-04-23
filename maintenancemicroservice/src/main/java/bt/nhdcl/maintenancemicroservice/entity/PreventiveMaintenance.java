@@ -18,7 +18,6 @@ public class PreventiveMaintenance {
     private String remark;
     private String status;
     private String description;
-    private String assignedSupervisors;
     private LocalDate endDate;
     private String repeat;
     private String userID;
@@ -29,7 +28,7 @@ public class PreventiveMaintenance {
     public PreventiveMaintenance() {}
 
     public PreventiveMaintenance(String maintenanceID, LocalTime timeStart, LocalDate startDate, int addCost, int addHours,
-                       String remark, String status, String description, String assignedSupervisors,
+                       String remark, String status, String description,
                        LocalDate endDate, String repeat, String userID, String technicianEmail, String assetCode) {
         this.maintenanceID = maintenanceID;
         this.timeStart = timeStart;
@@ -39,7 +38,6 @@ public class PreventiveMaintenance {
         this.remark = remark;
         this.status = status;
         this.description = description;
-        this.assignedSupervisors = assignedSupervisors;
         this.endDate = endDate;
         this.repeat = repeat;
         this.userID = userID;
@@ -110,14 +108,6 @@ public class PreventiveMaintenance {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getAssignedSupervisors() {
-        return assignedSupervisors;
-    }
-
-    public void setAssignedSupervisors(String assignedSupervisors) {
-        this.assignedSupervisors = assignedSupervisors;
     }
 
     public LocalDate getEndDate() {
