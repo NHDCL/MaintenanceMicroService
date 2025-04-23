@@ -78,4 +78,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void deleteSchedule(String scheduleID) {
         scheduleRepository.deleteById(scheduleID);
     }
+
+    public List<Schedule> getSchedulesByTechnicianEmail(String email) {
+        return scheduleRepository.findByTechnicianEmail(email);
+    }
 }

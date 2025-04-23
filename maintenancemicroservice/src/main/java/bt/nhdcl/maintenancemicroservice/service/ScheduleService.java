@@ -12,4 +12,5 @@ public interface ScheduleService {
     List<Schedule> getSchedulesByRepairID(String repairID);
     Schedule updateSchedule(String scheduleID, Schedule schedule);
     void deleteSchedule(String scheduleID);
+    List<Schedule> getSchedulesByTechnicianEmail(String email);
 }
