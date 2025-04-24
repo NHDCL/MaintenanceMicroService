@@ -19,9 +19,8 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
     private EmailService emailService;
 
     public PreventiveMaintenanceServiceImpl(
-        PreventiveMaintenanceRepository maintenanceRepository,
-        EmailService emailService
-    ) {
+            PreventiveMaintenanceRepository maintenanceRepository,
+            EmailService emailService) {
         this.maintenanceRepository = maintenanceRepository;
         this.emailService = emailService;
     }
@@ -66,6 +65,8 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
         PreventiveMaintenance existing = maintenanceRepository.findById(maintenanceID)
                 .orElseThrow(() -> new RuntimeException("Maintenance not found with ID: " + maintenanceID));
 
+        boolean technicianEmailUpdated = false;
+
         // Conditionally update only non-null or valid fields
         if (updatedMaintenance.getTimeStart() != null) {
             existing.setTimeStart(updatedMaintenance.getTimeStart());
@@ -89,7 +90,14 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
             existing.setDescription(updatedMaintenance.getDescription());
         }
         if (updatedMaintenance.getTechnicianEmail() != null) {
-            existing.setTechnicianEmail(updatedMaintenance.getTechnicianEmail());
+            String newEmail = updatedMaintenance.getTechnicianEmail();
+            String oldEmail = existing.getTechnicianEmail();
+
+            // Check if email was newly set or changed
+            if (!newEmail.equals(oldEmail)) {
+                existing.setTechnicianEmail(newEmail);
+                technicianEmailUpdated = true;
+            }
         }
         if (updatedMaintenance.getEndDate() != null) {
             existing.setEndDate(updatedMaintenance.getEndDate());
@@ -104,7 +112,21 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
             existing.setAssetCode(updatedMaintenance.getAssetCode());
         }
 
-        return maintenanceRepository.save(existing);
+        PreventiveMaintenance saved = maintenanceRepository.save(existing);
+
+        // Send email if technician email was updated
+        if (technicianEmailUpdated) {
+            String subject = "Preventive Maintenance Task Assigned";
+            String body = "Dear Technician,\n\n"
+                    + "You have been assigned a new preventive maintenance task. "
+                    + ".\n\n"
+                    + "Please complete it promptly.\n\n"
+                    + "Regards,\nNHDCL";
+
+            emailService.sendEmail(existing.getTechnicianEmail(), subject, body);
+        }
+
+        return saved;
     }
 
     public void sendEmail(String to) {
@@ -119,5 +141,10 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
 
     public List<PreventiveMaintenance> getByUserID(String userID) {
         return maintenanceRepository.findByUserID(userID);
+    }
+
+    @Override
+    public List<PreventiveMaintenance> getByTechnicianEmail(String email) {
+        return maintenanceRepository.findByTechnicianEmail(email);
     }
 }

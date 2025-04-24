@@ -2,6 +2,8 @@ package bt.nhdcl.maintenancemicroservice.service;
 
 import bt.nhdcl.maintenancemicroservice.entity.Schedule;
 import bt.nhdcl.maintenancemicroservice.repository.ScheduleRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +14,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
 
+    @Autowired
+    private EmailService emailService;
+    
     public ScheduleServiceImpl(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
     }
@@ -45,6 +50,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public Schedule updateSchedule(String scheduleID, Schedule updatedSchedule) {
         return scheduleRepository.findById(scheduleID)
                 .map(schedule -> {
+                    boolean technicianEmailUpdated = false;
                     if (updatedSchedule.getStartTime() != null)
                         schedule.setStartTime(updatedSchedule.getStartTime());
 
@@ -60,8 +66,16 @@ public class ScheduleServiceImpl implements ScheduleService {
                     if (updatedSchedule.getRemark() != null)
                         schedule.setRemark(updatedSchedule.getRemark());
 
-                    if (updatedSchedule.getTechnicianEmail() != null)
-                        schedule.setTechnicianEmail(updatedSchedule.getTechnicianEmail());
+                    if (updatedSchedule.getTechnicianEmail() != null) {
+                        String newEmail = updatedSchedule.getTechnicianEmail();
+                        String oldEmail = schedule.getTechnicianEmail();
+
+                        // Check if the email is different before setting
+                        if (!newEmail.equals(oldEmail)) {
+                            schedule.setTechnicianEmail(newEmail);
+                            technicianEmailUpdated = true;
+                        }
+                    }
 
                     if (updatedSchedule.getUserID() != null)
                         schedule.setUserID(updatedSchedule.getUserID());
@@ -69,10 +83,23 @@ public class ScheduleServiceImpl implements ScheduleService {
                     if (updatedSchedule.getRepairID() != null)
                         schedule.setRepairID(updatedSchedule.getRepairID());
 
-                    return scheduleRepository.save(schedule);
+                    Schedule savedSchedule = scheduleRepository.save(schedule);
+
+                    // Send email if technician email was updated
+                    if (technicianEmailUpdated) {
+                        String subject = "Repair Schedule Assigned";
+                        String body = "Dear Technician,\n\n"
+                                + "You have been assigned a new repair schedule.\n"
+                                + "Please check your schedule and attend to it as planned.\n\n"
+                                + "Regards,\nNHDCL";
+
+                        emailService.sendEmail(savedSchedule.getTechnicianEmail(), subject, body);
+                    }
+
+                    return savedSchedule;
                 })
                 .orElseThrow(() -> new RuntimeException("Schedule not found with ID: " + scheduleID));
-    }
+    };
 
     @Override
     public void deleteSchedule(String scheduleID) {

@@ -23,5 +23,7 @@ public interface PreventiveMaintenanceRepository extends MongoRepository<Prevent
     List<PreventiveMaintenance> findByStartDateAndStatus(LocalDate startDate, String status);
 
     List<PreventiveMaintenance> findByUserID(String userID);
+
+    List<PreventiveMaintenance> findByTechnicianEmail(String technicianEmail);
 }
 
