@@ -11,6 +11,7 @@ import com.cloudinary.Cloudinary;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,13 +64,66 @@ public class RepairServiceImpl implements RepairService {
         return repairRepository.findById(repairID);
     }
 
-    @Override
-    public Repair updateRepair(String repairID, Repair repair) {
-        if (repairRepository.existsById(repairID)) {
-            repair.setRepairID(repairID); // Ensure the repair ID is set
-            return repairRepository.save(repair);
+    public Map<String, Object> updateRepair(String repairID, Map<String, Object> updateFields) {
+        Optional<Repair> optionalRepair = repairRepository.findById(repairID);
+
+        Map<String, Object> response = new HashMap<>();
+
+        if (!optionalRepair.isPresent()) {
+            response.put("status", "error");
+            response.put("message", "Repair with ID " + repairID + " not found.");
+            return response;
         }
-        return null; // Or handle it based on your use case
+
+        Repair repair = optionalRepair.get();
+
+        // Update the fields based on the incoming updateFields map
+        if (updateFields.containsKey("name")) {
+            repair.setName((String) updateFields.get("name"));
+        }
+        if (updateFields.containsKey("phoneNumber")) {
+            repair.setPhoneNumber((String) updateFields.get("phoneNumber"));
+        }
+        if (updateFields.containsKey("email")) {
+            repair.setEmail((String) updateFields.get("email"));
+        }
+        if (updateFields.containsKey("priority")) {
+            repair.setPriority((String) updateFields.get("priority"));
+        }
+        if (updateFields.containsKey("status")) {
+            repair.setStatus((String) updateFields.get("status"));
+        }
+        if (updateFields.containsKey("area")) {
+            repair.setArea((String) updateFields.get("area"));
+        }
+        if (updateFields.containsKey("description")) {
+            repair.setDescription((String) updateFields.get("description"));
+        }
+        if (updateFields.containsKey("assetName")) {
+            repair.setAssetName((String) updateFields.get("assetName"));
+        }
+        if (updateFields.containsKey("scheduled")) {
+            repair.setScheduled((boolean) updateFields.get("scheduled"));
+        }
+        if (updateFields.containsKey("accept")) {
+            repair.setAccept((Boolean) updateFields.get("accept"));
+        }
+        if (updateFields.containsKey("academyId")) {
+            repair.setAcademyId((String) updateFields.get("academyId"));
+        }
+        if (updateFields.containsKey("assetCode")) {
+            repair.setAssetCode((String) updateFields.get("assetCode"));
+        }
+
+        // Save the updated repair
+        repairRepository.save(repair);
+
+        // Prepare the response with the updated repair data
+        response.put("status", "success");
+        response.put("message", "Repair updated successfully.");
+        response.put("repair", repair);
+
+        return response;
     }
 
     @Override

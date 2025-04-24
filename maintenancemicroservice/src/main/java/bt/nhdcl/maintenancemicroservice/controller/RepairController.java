@@ -39,7 +39,6 @@ public class RepairController {
             @RequestParam String assetName,
             @RequestParam boolean scheduled,
             @RequestParam String academyId,
-            @RequestParam String assetCode,
             @RequestParam("images") MultipartFile[] imageFiles) {
 
         Repair repair = new Repair();
@@ -53,7 +52,6 @@ public class RepairController {
         repair.setAssetName(assetName);
         repair.setScheduled(scheduled);
         repair.setAcademyId(academyId);
-        repair.setAssetCode(assetCode);
 
         Repair createdRepair = repairService.createRepair(repair, imageFiles);
         return new ResponseEntity<>(createdRepair, HttpStatus.CREATED);
@@ -75,12 +73,10 @@ public class RepairController {
     }
 
     // Update a repair by ID
-    @PutMapping("/{repairID}")
-    public ResponseEntity<Repair> updateRepair(@PathVariable String repairID, @RequestBody Repair repair) {
-        Repair updatedRepair = repairService.updateRepair(repairID, repair);
-        return updatedRepair != null
-                ? new ResponseEntity<>(updatedRepair, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @PutMapping("/update/{repairID}")
+    public ResponseEntity<Map<String, Object>> updateRepair(@PathVariable String repairID, @RequestBody Map<String, Object> updateFields) {
+        Map<String, Object> result = repairService.updateRepair(repairID, updateFields);
+        return ResponseEntity.ok(result); // This will automatically convert the Map to JSON
     }
 
     // Delete a repair by ID
