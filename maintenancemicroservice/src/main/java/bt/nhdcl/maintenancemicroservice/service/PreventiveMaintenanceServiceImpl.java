@@ -142,4 +142,9 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
     public List<PreventiveMaintenance> getByUserID(String userID) {
         return maintenanceRepository.findByUserID(userID);
     }
+
+    @Override
+    public List<PreventiveMaintenance> getByTechnicianEmail(String email) {
+        return maintenanceRepository.findByTechnicianEmail(email);
+    }
 }

@@ -34,4 +34,6 @@ public interface PreventiveMaintenanceService {
 
     List<PreventiveMaintenance> getByUserID(String userID);
 
+    List<PreventiveMaintenance> getByTechnicianEmail(String email);
+
 }

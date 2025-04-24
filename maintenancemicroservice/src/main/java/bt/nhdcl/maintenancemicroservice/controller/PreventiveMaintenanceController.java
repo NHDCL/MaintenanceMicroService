@@ -89,4 +89,9 @@ public class PreventiveMaintenanceController {
     public List<PreventiveMaintenance> getByUserID(@PathVariable String userID) {
         return maintenanceService.getByUserID(userID);
     }
+
+    @GetMapping("/technician/{email}")
+    public List<PreventiveMaintenance> getByTechnicianEmail(@PathVariable String email) {
+        return maintenanceService.getByTechnicianEmail(email);
+    }
 }
