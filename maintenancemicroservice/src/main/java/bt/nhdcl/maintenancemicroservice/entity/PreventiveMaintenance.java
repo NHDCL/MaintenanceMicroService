@@ -23,13 +23,14 @@ public class PreventiveMaintenance {
     private String userID;
     private String technicianEmail;
     private String assetCode;
+    private String academyId;
 
     // Constructors
     public PreventiveMaintenance() {}
 
     public PreventiveMaintenance(String maintenanceID, LocalTime timeStart, LocalDate startDate, int addCost, int addHours,
                        String remark, String status, String description,
-                       LocalDate endDate, String repeat, String userID, String technicianEmail, String assetCode) {
+                       LocalDate endDate, String repeat, String userID, String technicianEmail, String assetCode, String academyId) {
         this.maintenanceID = maintenanceID;
         this.timeStart = timeStart;
         this.startDate = startDate;
@@ -43,6 +44,7 @@ public class PreventiveMaintenance {
         this.userID = userID;
         this.technicianEmail =technicianEmail;
         this.assetCode = assetCode;
+        this.academyId = academyId;
     }
 
     // Getters and Setters
@@ -148,6 +150,14 @@ public class PreventiveMaintenance {
 
     public void setAssetCode(String assetCode) {
         this.assetCode = assetCode;
+    }
+
+    public String getAcademyId() {
+        return academyId;
+    }
+
+    public void setAcademyId(String academyId) {
+        this.academyId = academyId;
     }
 }
 
