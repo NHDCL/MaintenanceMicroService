@@ -1,7 +1,6 @@
 package bt.nhdcl.maintenancemicroservice.service;
 
 import bt.nhdcl.maintenancemicroservice.entity.PreventiveMaintenanceReport;
-import bt.nhdcl.maintenancemicroservice.entity.RepairReport;
 import bt.nhdcl.maintenancemicroservice.repository.PreventiveMaintenanceReportRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +58,10 @@ public class PreventiveMaintenanceReportServiceImpl implements PreventiveMainten
     @Override
     public Optional<PreventiveMaintenanceReport> getReportById(String id) {
         return repository.findById(id);
+    }
+
+    public List<PreventiveMaintenanceReport> getReportsByPreventiveMaintenanceID(String preventiveMaintenanceID) {
+        return repository.findByPreventiveMaintenanceID(preventiveMaintenanceID);
     }
 
     @Override

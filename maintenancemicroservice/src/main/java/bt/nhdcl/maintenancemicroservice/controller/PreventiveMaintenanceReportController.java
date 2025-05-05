@@ -1,7 +1,6 @@
 package bt.nhdcl.maintenancemicroservice.controller;
 
 import bt.nhdcl.maintenancemicroservice.entity.PreventiveMaintenanceReport;
-import bt.nhdcl.maintenancemicroservice.entity.RepairReport;
 import bt.nhdcl.maintenancemicroservice.service.PreventiveMaintenanceReportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,5 +78,10 @@ public class PreventiveMaintenanceReportController {
     public ResponseEntity<Void> deleteReport(@PathVariable String id) {
         service.deleteReport(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/by-maintenance-id/{id}")
+    public List<PreventiveMaintenanceReport> getReportsByPreventiveMaintenanceID(@PathVariable("id") String preventiveMaintenanceID) {
+        return service.getReportsByPreventiveMaintenanceID(preventiveMaintenanceID);
     }
 }

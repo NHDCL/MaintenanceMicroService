@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -111,6 +112,9 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
         if (updatedMaintenance.getAssetCode() != null) {
             existing.setAssetCode(updatedMaintenance.getAssetCode());
         }
+        if (updatedMaintenance.getAcademyId() != null) {
+            existing.setAcademyId(updatedMaintenance.getAcademyId());
+        }
 
         PreventiveMaintenance saved = maintenanceRepository.save(existing);
 
@@ -146,5 +150,62 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
     @Override
     public List<PreventiveMaintenance> getByTechnicianEmail(String email) {
         return maintenanceRepository.findByTechnicianEmail(email);
+    }
+
+    public void generateRepeatingMaintenance() {
+        LocalDate today = LocalDate.now();
+
+        List<PreventiveMaintenance> maintenanceList = maintenanceRepository.findAll();
+
+        for (PreventiveMaintenance maintenance : maintenanceList) {
+            // Skip if no repeat
+            if (maintenance.getRepeat() == null || maintenance.getRepeat().equalsIgnoreCase("none")) {
+                continue;
+            }
+
+            // Skip if endDate passed
+            if (maintenance.getEndDate() != null && today.isAfter(maintenance.getEndDate())) {
+                continue;
+            }
+
+            LocalDate nextStartDate = getNextStartDate(maintenance.getStartDate(), maintenance.getRepeat());
+
+            // 🧠 Check if today is 3 days before the nextStartDate
+            if (today.isEqual(nextStartDate.minusDays(7))) {
+                PreventiveMaintenance newMaintenance = new PreventiveMaintenance();
+                newMaintenance.setTimeStart(maintenance.getTimeStart());
+                newMaintenance.setStartDate(nextStartDate); // Real start date
+                newMaintenance.setAddCost(maintenance.getAddCost());
+                newMaintenance.setAddHours(maintenance.getAddHours());
+                newMaintenance.setRemark(maintenance.getRemark());
+                newMaintenance.setStatus("Pending"); // You can customize
+                newMaintenance.setDescription(maintenance.getDescription());
+                newMaintenance.setEndDate(maintenance.getEndDate());
+                newMaintenance.setRepeat(maintenance.getRepeat());
+                newMaintenance.setUserID(maintenance.getUserID());
+                newMaintenance.setTechnicianEmail(maintenance.getTechnicianEmail());
+                newMaintenance.setAssetCode(maintenance.getAssetCode());
+                newMaintenance.setAcademyId(maintenance.getAcademyId());
+
+                maintenanceRepository.save(newMaintenance);
+
+                System.out.println("Generated preventive maintenance for: " + nextStartDate);
+            }
+        }
+    }
+
+    private LocalDate getNextStartDate(LocalDate currentStartDate, String repeatType) {
+        switch (repeatType.toLowerCase()) {
+            case "daily":
+                return currentStartDate.plus(1, ChronoUnit.DAYS);
+            case "weekly":
+                return currentStartDate.plus(1, ChronoUnit.WEEKS);
+            case "monthly":
+                return currentStartDate.plus(1, ChronoUnit.MONTHS);
+            case "yearly":
+                return currentStartDate.plus(1, ChronoUnit.YEARS);
+            default:
+                return currentStartDate; // no repeat
+        }
     }
 }
