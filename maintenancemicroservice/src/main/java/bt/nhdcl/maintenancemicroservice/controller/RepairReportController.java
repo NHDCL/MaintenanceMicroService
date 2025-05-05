@@ -1,7 +1,11 @@
 package bt.nhdcl.maintenancemicroservice.controller;
 
+import bt.nhdcl.maintenancemicroservice.entity.Repair;
 import bt.nhdcl.maintenancemicroservice.entity.RepairReport;
+import bt.nhdcl.maintenancemicroservice.service.EmailService;
 import bt.nhdcl.maintenancemicroservice.service.RepairReportService;
+import bt.nhdcl.maintenancemicroservice.service.RepairService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +25,12 @@ public class RepairReportController {
     public RepairReportController(RepairReportService repairReportService) {
         this.repairReportService = repairReportService;
     }
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private RepairService repairService;
 
     // Create a new repair report
     @PostMapping
@@ -50,6 +60,20 @@ public class RepairReportController {
         report.setRepairID(repairID);
 
         RepairReport created = repairReportService.createRepairReport(report, imageFiles);
+
+        Optional<Repair> optionalRepair = repairService.getRepairById(repairID);
+        optionalRepair.ifPresent(repair -> {
+            String userEmail = repair.getEmail();
+            String asset = repair.getAssetName();
+            emailService.sendEmail(
+                    userEmail,
+                    "Repair Request Completed",
+                    "Dear " + repair.getName() + ",\n\n"
+                            + "We are pleased to inform you that your repair request for the asset: "
+                            + asset + " has been successfully completed.\n\n"
+                            + "Thank you,\n\n"
+                            + "NHDCL");
+        });
         return ResponseEntity.ok(created);
     }
 
