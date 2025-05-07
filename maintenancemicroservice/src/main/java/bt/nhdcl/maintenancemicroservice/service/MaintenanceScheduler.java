@@ -22,7 +22,7 @@ public class MaintenanceScheduler {
     @Scheduled(cron = "0 0 9 * * ?")
     public void notifyTechnicians() {
         LocalDate today = LocalDate.now();
-        LocalDate notifyDate = today.plusDays(7);
+        LocalDate notifyDate = today.plusDays(3);
 
         List<PreventiveMaintenance> upcoming = repository.findByStartDateAndStatus(notifyDate, "Pending");
 

@@ -170,8 +170,8 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
 
             LocalDate nextStartDate = getNextStartDate(maintenance.getStartDate(), maintenance.getRepeat());
 
-            // 🧠 Check if today is 3 days before the nextStartDate
-            if (today.isEqual(nextStartDate.minusDays(7))) {
+            // 🧠 Check if today is 7 days before the nextStartDate
+            if (today.isEqual(nextStartDate.minusDays(5))) {
                 PreventiveMaintenance newMaintenance = new PreventiveMaintenance();
                 newMaintenance.setTimeStart(maintenance.getTimeStart());
                 newMaintenance.setStartDate(nextStartDate); // Real start date

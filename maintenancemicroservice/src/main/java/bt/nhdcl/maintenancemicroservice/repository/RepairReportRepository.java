@@ -16,4 +16,6 @@ public interface RepairReportRepository extends MongoRepository<RepairReport, St
 
     // Example: Find a report by maintenanceReportID
     Optional<RepairReport> findByRepairReportID(String repairReportID);
+    
+    boolean existsByRepairID(String repairID);
 }

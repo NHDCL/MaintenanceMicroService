@@ -12,4 +12,6 @@ public interface PreventiveMaintenanceReportRepository extends MongoRepository<P
     // You can add custom query methods here if needed
     List<PreventiveMaintenanceReport> findByPreventiveMaintenanceID(String preventiveMaintenanceID);
 
+    boolean existsByPreventiveMaintenanceID(String preventiveMaintenanceID);
+
 }
