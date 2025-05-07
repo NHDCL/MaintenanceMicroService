@@ -10,8 +10,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/schedules")
-// @CrossOrigin(origins = "*") // Allow requests from different origins (adjust
-// as needed)
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
