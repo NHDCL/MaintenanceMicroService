@@ -4,17 +4,23 @@ import bt.nhdcl.maintenancemicroservice.entity.PreventiveMaintenance;
 import bt.nhdcl.maintenancemicroservice.repository.PreventiveMaintenanceRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceService {
 
     private final PreventiveMaintenanceRepository maintenanceRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Autowired
     private EmailService emailService;
@@ -28,7 +34,24 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
 
     @Override
     public PreventiveMaintenance saveMaintenance(PreventiveMaintenance maintenance) {
-        return maintenanceRepository.save(maintenance);
+        PreventiveMaintenance saved = maintenanceRepository.save(maintenance);
+        if (saved.getAssetCode() != null) {
+        // Correct endpoint and method
+        String assetServiceUrl = "http://ASSETMICROSERVICE/api/assets/update-status";
+
+        // Create the request body as a Map (since you're not using DTO)
+        Map<String, String> request = new HashMap<>();
+        request.put("assetCode", saved.getAssetCode());
+        request.put("status", "In Maintenance");
+
+        try {
+            restTemplate.postForEntity(assetServiceUrl, request, Void.class);
+        } catch (Exception e) {
+            System.err.println("Failed to update asset status: " + e.getMessage());
+        }
+    }
+
+    return saved;
     }
 
     @Override
@@ -152,14 +175,16 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
         return maintenanceRepository.findByTechnicianEmail(email);
     }
 
+    @Scheduled(cron = "0 0 8 * * *")
     public void generateRepeatingMaintenance() {
         LocalDate today = LocalDate.now();
-
         List<PreventiveMaintenance> maintenanceList = maintenanceRepository.findAll();
 
         for (PreventiveMaintenance maintenance : maintenanceList) {
-            // Skip if no repeat
-            if (maintenance.getRepeat() == null || maintenance.getRepeat().equalsIgnoreCase("none")) {
+            String repeatType = maintenance.getRepeat();
+
+            // Skip if no repeat or invalid
+            if (repeatType == null || repeatType.equalsIgnoreCase("none")) {
                 continue;
             }
 
@@ -168,17 +193,23 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
                 continue;
             }
 
-            LocalDate nextStartDate = getNextStartDate(maintenance.getStartDate(), maintenance.getRepeat());
+            // Get the next scheduled start date
+            LocalDate nextStartDate = getNextStartDate(maintenance.getStartDate(), repeatType);
 
-            // 🧠 Check if today is 7 days before the nextStartDate
-            if (today.isEqual(nextStartDate.minusDays(5))) {
+            // Get the lead time (how many days before nextStartDate we should generate the
+            // task)
+            int leadTime = getLeadTimeDays(repeatType);
+
+            // Check if today is the right day to generate the new maintenance
+            if (today.isEqual(nextStartDate.minusDays(leadTime))) {
                 PreventiveMaintenance newMaintenance = new PreventiveMaintenance();
+
                 newMaintenance.setTimeStart(maintenance.getTimeStart());
-                newMaintenance.setStartDate(nextStartDate); // Real start date
+                newMaintenance.setStartDate(nextStartDate);
                 newMaintenance.setAddCost(maintenance.getAddCost());
                 newMaintenance.setAddHours(maintenance.getAddHours());
                 newMaintenance.setRemark(maintenance.getRemark());
-                newMaintenance.setStatus("Pending"); // You can customize
+                newMaintenance.setStatus("Pending");
                 newMaintenance.setDescription(maintenance.getDescription());
                 newMaintenance.setEndDate(maintenance.getEndDate());
                 newMaintenance.setRepeat(maintenance.getRepeat());
@@ -194,18 +225,44 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
         }
     }
 
-    private LocalDate getNextStartDate(LocalDate currentStartDate, String repeatType) {
+    private LocalDate getNextStartDate(LocalDate startDate, String repeatType) {
+        LocalDate nextDate = startDate;
+        LocalDate today = LocalDate.now();
+
+        while (!nextDate.isAfter(today)) {
+            switch (repeatType.toLowerCase()) {
+                case "daily":
+                    nextDate = nextDate.plusDays(1);
+                    break;
+                case "weekly":
+                    nextDate = nextDate.plusWeeks(1);
+                    break;
+                case "monthly":
+                    nextDate = nextDate.plusMonths(1);
+                    break;
+                case "yearly":
+                    nextDate = nextDate.plusYears(1);
+                    break;
+                default:
+                    return startDate;
+            }
+        }
+        return nextDate;
+    }
+
+    private int getLeadTimeDays(String repeatType) {
         switch (repeatType.toLowerCase()) {
             case "daily":
-                return currentStartDate.plus(1, ChronoUnit.DAYS);
+                return 0; // generate on the same day
             case "weekly":
-                return currentStartDate.plus(1, ChronoUnit.WEEKS);
+                return 3;
             case "monthly":
-                return currentStartDate.plus(1, ChronoUnit.MONTHS);
+                return 3;
             case "yearly":
-                return currentStartDate.plus(1, ChronoUnit.YEARS);
+                return 3;
             default:
-                return currentStartDate; // no repeat
+                return 0;
         }
     }
+
 }

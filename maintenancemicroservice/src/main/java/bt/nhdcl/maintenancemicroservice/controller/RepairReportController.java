@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -32,49 +33,70 @@ public class RepairReportController {
     @Autowired
     private RepairService repairService;
 
-    // Create a new repair report
-    @PostMapping
-    public ResponseEntity<RepairReport> createRepairReport(
-            @RequestParam(required = false) String startTime,
-            @RequestParam(required = false) String endTime,
+    @PostMapping("/start-time")
+    public ResponseEntity<RepairReport> submitStartTime(@RequestBody Map<String, String> requestBody) {
+        String startTime = requestBody.get("startTime");
+        String repairID = requestBody.get("repairID");
+
+        RepairReport report = new RepairReport();
+        report.setRepairID(repairID);
+        report.setStartTime(LocalTime.parse(startTime));
+
+        RepairReport saved = repairReportService.createReport(report);
+        return ResponseEntity.ok(saved);
+    }
+
+    @PutMapping("/{reportID}/end-time")
+    public ResponseEntity<RepairReport> submitEndTime(
+            @PathVariable String reportID,
+            @RequestBody Map<String, String> requestBody) {
+
+        String endTime = requestBody.get("endTime");
+
+        RepairReport updated = repairReportService.updateEndTime(reportID, LocalTime.parse(endTime));
+
+        return updated != null
+                ? ResponseEntity.ok(updated)
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    // SECOND PART: Upload completion details + images + send email
+    @PutMapping("/complete/{reportID}")
+    public ResponseEntity<RepairReport> completeRepairReport(
+            @PathVariable String reportID,
             @RequestParam(required = false) String finishedDate,
             @RequestParam int totalCost,
             @RequestParam String information,
             @RequestParam String partsUsed,
             @RequestParam String technicians,
-            @RequestParam String repairID,
             @RequestParam(value = "images", required = false) List<MultipartFile> imageFiles) {
-        RepairReport report = new RepairReport();
 
-        if (startTime != null)
-            report.setStartTime(LocalTime.parse(startTime));
-        if (endTime != null)
-            report.setEndTime(LocalTime.parse(endTime));
+        RepairReport updatedData = new RepairReport();
         if (finishedDate != null)
-            report.setFinishedDate(LocalDate.parse(finishedDate));
+            updatedData.setFinishedDate(LocalDate.parse(finishedDate));
+        updatedData.setTotalCost(totalCost);
+        updatedData.setInformation(information);
+        updatedData.setPartsUsed(partsUsed);
+        updatedData.setTechnicians(technicians);
 
-        report.setTotalCost(totalCost);
-        report.setInformation(information);
-        report.setPartsUsed(partsUsed);
-        report.setTechnicians(technicians);
-        report.setRepairID(repairID);
+        RepairReport updated = repairReportService.updateReport(reportID, updatedData, imageFiles);
 
-        RepairReport created = repairReportService.createRepairReport(report, imageFiles);
-
-        Optional<Repair> optionalRepair = repairService.getRepairById(repairID);
-        optionalRepair.ifPresent(repair -> {
-            String userEmail = repair.getEmail();
-            String asset = repair.getAssetName();
-            emailService.sendEmail(
-                    userEmail,
-                    "Repair Request Completed",
-                    "Dear " + repair.getName() + ",\n\n"
-                            + "We are pleased to inform you that your repair request for the asset: "
-                            + asset + " has been successfully completed.\n\n"
-                            + "Thank you,\n\n"
-                            + "NHDCL");
+        // Send email if repairID exists
+        Optional<RepairReport> optionalReport = repairReportService.getRepairReportById(reportID);
+        optionalReport.ifPresent(report -> {
+            Optional<Repair> optionalRepair = repairService.getRepairById(report.getRepairID());
+            optionalRepair.ifPresent(repair -> {
+                emailService.sendEmail(
+                        repair.getEmail(),
+                        "Repair Request Completed",
+                        "Dear " + repair.getName() + ",\n\n" +
+                                "We are pleased to inform you that your repair request for the asset: " +
+                                repair.getAssetName() + " has been successfully completed.\n\n" +
+                                "Thank you,\n\nNHDCL");
+            });
         });
-        return ResponseEntity.ok(created);
+
+        return ResponseEntity.ok(updated);
     }
 
     // Get all repair reports

@@ -4,7 +4,9 @@ import bt.nhdcl.maintenancemicroservice.entity.Repair;
 import bt.nhdcl.maintenancemicroservice.repository.RepairRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.Cloudinary;
@@ -24,6 +26,9 @@ public class RepairServiceImpl implements RepairService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     public RepairServiceImpl(RepairRepository repairRepository, Cloudinary cloudinary) {
         this.repairRepository = repairRepository;
@@ -51,7 +56,28 @@ public class RepairServiceImpl implements RepairService {
         }
 
         repair.setImages(imageUrls); // Set the list of image URLs in the Repair entity
-        return repairRepository.save(repair);
+        Repair saved = repairRepository.save(repair);
+
+        // 3. If assetCode exists, update asset status to "In Maintenance"
+        if (saved.getAssetCode() != null && !saved.getAssetCode().isEmpty()) {
+            String assetServiceUrl = "http://ASSETMICROSERVICE/api/assets/update-status";
+            Map<String, String> request = new HashMap<>();
+            request.put("assetCode", saved.getAssetCode());
+            request.put("status", "In Maintenance");
+
+            try {
+                ResponseEntity<Void> response = restTemplate.postForEntity(assetServiceUrl, request, Void.class);
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    System.out.println("✅ Asset status updated successfully.");
+                } else {
+                    System.err.println("⚠️ Asset status update failed with status code: " + response.getStatusCode());
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Failed to update asset status: " + e.getMessage());
+            }
+        }
+
+        return saved;
     }
 
     @Override
