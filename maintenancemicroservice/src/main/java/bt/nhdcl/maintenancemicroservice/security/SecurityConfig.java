@@ -26,7 +26,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/maintenance").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/maintenance").hasAuthority("Manager")
                         .requestMatchers(HttpMethod.GET, "/api/maintenance/{id}").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/maintenance/{id}").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/maintenance/{id}").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/api/maintenance/{id}").hasAuthority("Manager")
                         .requestMatchers(HttpMethod.GET, "/api/maintenance/status/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/maintenance/date/**").permitAll()
