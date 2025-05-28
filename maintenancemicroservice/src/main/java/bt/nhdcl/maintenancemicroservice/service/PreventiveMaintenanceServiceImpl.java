@@ -36,22 +36,22 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
     public PreventiveMaintenance saveMaintenance(PreventiveMaintenance maintenance) {
         PreventiveMaintenance saved = maintenanceRepository.save(maintenance);
         if (saved.getAssetCode() != null) {
-        // Correct endpoint and method
-        String assetServiceUrl = "http://ASSETMICROSERVICE/api/assets/update-status";
+            // Correct endpoint and method
+            String assetServiceUrl = "http://ASSETMICROSERVICE/api/assets/update-status";
 
-        // Create the request body as a Map (since you're not using DTO)
-        Map<String, String> request = new HashMap<>();
-        request.put("assetCode", saved.getAssetCode());
-        request.put("status", "In Maintenance");
+            // Create the request body as a Map (since you're not using DTO)
+            Map<String, String> request = new HashMap<>();
+            request.put("assetCode", saved.getAssetCode());
+            request.put("status", "In Maintenance");
 
-        try {
-            restTemplate.postForEntity(assetServiceUrl, request, Void.class);
-        } catch (Exception e) {
-            System.err.println("Failed to update asset status: " + e.getMessage());
+            try {
+                restTemplate.postForEntity(assetServiceUrl, request, Void.class);
+            } catch (Exception e) {
+                System.err.println("Failed to update asset status: " + e.getMessage());
+            }
         }
-    }
 
-    return saved;
+        return saved;
     }
 
     @Override
@@ -202,6 +202,11 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
 
             // Check if today is the right day to generate the new maintenance
             if (today.isEqual(nextStartDate.minusDays(leadTime))) {
+                boolean exists = maintenanceRepository.existsByStartDateAndAssetCode(nextStartDate,
+                        maintenance.getAssetCode());
+                if (exists) {
+                    continue; // Skip generation to avoid duplication
+                }
                 PreventiveMaintenance newMaintenance = new PreventiveMaintenance();
 
                 newMaintenance.setTimeStart(maintenance.getTimeStart());
@@ -229,7 +234,7 @@ public class PreventiveMaintenanceServiceImpl implements PreventiveMaintenanceSe
         LocalDate nextDate = startDate;
         LocalDate today = LocalDate.now();
 
-        while (!nextDate.isAfter(today)) {
+        while (nextDate.isBefore(today)) {
             switch (repeatType.toLowerCase()) {
                 case "daily":
                     nextDate = nextDate.plusDays(1);

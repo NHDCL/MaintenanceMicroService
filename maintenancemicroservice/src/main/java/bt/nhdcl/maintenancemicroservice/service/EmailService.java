@@ -12,6 +12,9 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     public void sendEmail(String to, String subject, String body) {
+        System.out.println("Sending email to " + to);
+        System.out.println("Subject: " + subject);
+        System.out.println("Body: " + body);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("NHDCL"); // Must match your configured email
         message.setTo(to);

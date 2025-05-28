@@ -23,7 +23,8 @@ public class MaintenanceOverdueNotifier {
     @Autowired
     private EmailService emailService;
 
-    @Scheduled(cron = "0 30 8 * * ?") // Runs daily at 8:30 AM
+    // @Scheduled(cron = "0 30 8 * * ?") // Runs daily at 8:30 AM
+    @Scheduled(cron = "0 26 23 * * *")
     public void notifyOverdueTechnicians() {
         List<PreventiveMaintenance> allMaintenances = preventiveRepo.findAll();
 
