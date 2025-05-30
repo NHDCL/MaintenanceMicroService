@@ -14,6 +14,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,71 +40,95 @@ public class PreventiveMaintenanceReportServiceImpl implements PreventiveMainten
     @Autowired
     private Cloudinary cloudinary;
 
-     @Override
-    public PreventiveMaintenanceReport createReport(PreventiveMaintenanceReport report, List<MultipartFile> imageFiles) {
+    @Override
+    public PreventiveMaintenanceReport createReport(PreventiveMaintenanceReport report,
+            List<MultipartFile> imageFiles) {
         if (imageFiles != null && !imageFiles.isEmpty()) {
             List<String> imageUrls = uploadImages(imageFiles);
             report.setImages(imageUrls);
         }
         // 2. Save the report
-    PreventiveMaintenanceReport savedReport = repository.save(report);
+        PreventiveMaintenanceReport savedReport = repository.save(report);
 
-    // 3. Find the related maintenance record
-    String maintenanceId = report.getPreventiveMaintenanceID();
-    Optional<PreventiveMaintenance> maintenanceOpt = maintenanceRepository.findById(maintenanceId);
+        // 3. Find the related maintenance record
+        String maintenanceId = report.getPreventiveMaintenanceID();
+        Optional<PreventiveMaintenance> maintenanceOpt = maintenanceRepository.findById(maintenanceId);
 
-    if (maintenanceOpt.isPresent()) {
-        PreventiveMaintenance saved = maintenanceOpt.get();
+        if (maintenanceOpt.isPresent()) {
+            PreventiveMaintenance saved = maintenanceOpt.get();
 
-        // Update asset status via ASSETMICROSERVICE
-        if (saved.getAssetCode() != null) {
-            String assetServiceUrl = "http://ASSETMICROSERVICE/api/assets/update-status";
+            // Update asset status via ASSETMICROSERVICE
+            if (saved.getAssetCode() != null) {
+                String assetServiceUrl = "http://ASSETMICROSERVICE/api/assets/update-status";
 
-            Map<String, String> request = new HashMap<>();
-            request.put("assetCode", saved.getAssetCode());
-            request.put("status", "In Usage"); // or "Completed" based on your logic
+                Map<String, String> request = new HashMap<>();
+                request.put("assetCode", saved.getAssetCode());
+                request.put("status", "In Usage"); // or "Completed" based on your logic
 
-            try {
-                ResponseEntity<Void> response = restTemplate.postForEntity(assetServiceUrl, request, Void.class);
-                if (response.getStatusCode().is2xxSuccessful()) {
-                System.out.println("✅ Asset status updated successfully.");
-            } else {
-                System.err.println("⚠️ Asset status update failed with status code: " + response.getStatusCode());
+                try {
+                    ResponseEntity<Void> response = restTemplate.postForEntity(assetServiceUrl, request, Void.class);
+                    if (response.getStatusCode().is2xxSuccessful()) {
+                        System.out.println("✅ Asset status updated successfully.");
+                    } else {
+                        System.err
+                                .println("⚠️ Asset status update failed with status code: " + response.getStatusCode());
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to update asset status: " + e.getMessage());
+                }
             }
-            } catch (Exception e) {
-                System.err.println("Failed to update asset status: " + e.getMessage());
-            }
+
+        } else {
+            throw new RuntimeException(
+                    "Preventive Maintenance with ID " + report.getPreventiveMaintenanceID() + " not found.");
         }
 
-    } else {
-        throw new RuntimeException("Preventive Maintenance with ID " + report.getPreventiveMaintenanceID() + " not found.");
-    }
-
-    return savedReport;
+        return savedReport;
     }
 
     @Override
-    public PreventiveMaintenanceReport updateEndTime(String reportID, LocalTime endTime) {
+    public PreventiveMaintenanceReport updateEndTime(String reportID, LocalTime endTime, LocalDate finishedDate) {
         Optional<PreventiveMaintenanceReport> optional = repository.findById(reportID);
         if (optional.isEmpty())
             return null;
 
         PreventiveMaintenanceReport existing = optional.get();
-        existing.setEndTime(endTime);
+
+        if (endTime != null) {
+            existing.setEndTime(endTime);
+        }
+        if (finishedDate != null) {
+            existing.setFinishedDate(finishedDate);
+        }
+
         return repository.save(existing);
     }
 
+    // @Override
+    // public PreventiveMaintenanceReport updateEndTime(String reportID, LocalTime
+    // endTime) {
+    // Optional<PreventiveMaintenanceReport> optional =
+    // repository.findById(reportID);
+    // if (optional.isEmpty())
+    // return null;
+
+    // PreventiveMaintenanceReport existing = optional.get();
+    // existing.setEndTime(endTime);
+    // return repository.save(existing);
+    // }
+
     @Override
-    public PreventiveMaintenanceReport updateReport(String reportID, PreventiveMaintenanceReport updatedData, List<MultipartFile> imageFiles) {
+    public PreventiveMaintenanceReport updateReport(String reportID, PreventiveMaintenanceReport updatedData,
+            List<MultipartFile> imageFiles) {
         Optional<PreventiveMaintenanceReport> optional = repository.findById(reportID);
         if (optional.isEmpty())
             return null;
 
         PreventiveMaintenanceReport existing = optional.get();
 
-        if (updatedData.getFinishedDate() != null) {
-            existing.setFinishedDate(updatedData.getFinishedDate());
-        }
+        // if (updatedData.getFinishedDate() != null) {
+        //     existing.setFinishedDate(updatedData.getFinishedDate());
+        // }
         if (updatedData.getTotalCost() != 0) {
             existing.setTotalCost(updatedData.getTotalCost());
         }
@@ -132,7 +157,8 @@ public class PreventiveMaintenanceReportServiceImpl implements PreventiveMainten
         List<String> imageUrls = new ArrayList<>();
         for (MultipartFile image : imageFiles) {
             try {
-                Map<String, Object> uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
+                Map<String, Object> uploadResult = cloudinary.uploader().upload(image.getBytes(),
+                        ObjectUtils.emptyMap());
                 imageUrls.add((String) uploadResult.get("secure_url"));
             } catch (IOException e) {
                 throw new RuntimeException("Image upload failed: " + e.getMessage());

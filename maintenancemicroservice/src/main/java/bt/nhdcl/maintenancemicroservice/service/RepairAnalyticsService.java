@@ -1,4 +1,5 @@
 package bt.nhdcl.maintenancemicroservice.service;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -6,11 +7,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.*;
-import java.util.Locale;
+import java.util.stream.Collectors;
 
 import bt.nhdcl.maintenancemicroservice.entity.Repair;
 import bt.nhdcl.maintenancemicroservice.entity.RepairReport;
-import bt.nhdcl.maintenancemicroservice.repository.*;
+import bt.nhdcl.maintenancemicroservice.repository.RepairRepository;
+import bt.nhdcl.maintenancemicroservice.repository.RepairReportRepository;
 
 @Service
 public class RepairAnalyticsService {
@@ -25,30 +27,49 @@ public class RepairAnalyticsService {
         List<Repair> repairs = repairRepository.findAll();
         List<RepairReport> reports = repairReportRepository.findAll();
 
-        // Map to group durations by academyId-year-month
+        // Count how many reports exist per repairID
+        Map<String, Long> reportCounts = reports.stream()
+                .filter(r -> r.getRepairID() != null)
+                .collect(Collectors.groupingBy(RepairReport::getRepairID, Collectors.counting()));
+
+        // Group durations by academyId-year-month
         Map<String, List<Long>> groupedDurations = new HashMap<>();
 
         for (Repair repair : repairs) {
-            if (repair.getRepairID() == null || repair.getSubmissionDate() == null) continue;
+            String repairId = repair.getRepairID();
 
-            // Find matching report
+            // Exclude missing IDs or submissionDate
+            if (repairId == null || repair.getSubmissionDate() == null) continue;
+
+            // Exclude if multiple reports exist for a single repair
+            if (reportCounts.getOrDefault(repairId, 0L) != 1L) continue;
+
+            // Find the single matching report
             RepairReport matchingReport = reports.stream()
-                    .filter(r -> r.getRepairID() != null && r.getRepairID().equals(repair.getRepairID()))
+                    .filter(r -> repairId.equals(r.getRepairID()))
                     .findFirst()
                     .orElse(null);
 
-            if (matchingReport != null && matchingReport.getFinishedDate() != null && matchingReport.getEndTime() != null) {
-                // Combine finished date and time
-                LocalDateTime finishedDateTime = LocalDateTime.of(matchingReport.getFinishedDate(), matchingReport.getEndTime());
-
-                // Calculate duration in hours
-                Duration duration = Duration.between(repair.getSubmissionDate(), finishedDateTime);
-                long hours = duration.toHours();
-
-                // Key: academyId-year-month
-                String key = repair.getAcademyId() + "-" + matchingReport.getFinishedDate().getYear() + "-" + matchingReport.getFinishedDate().getMonthValue();
-                groupedDurations.computeIfAbsent(key, k -> new ArrayList<>()).add(hours);
+            // Exclude if report is missing or has incomplete date/time
+            if (matchingReport == null ||
+                matchingReport.getFinishedDate() == null ||
+                matchingReport.getEndTime() == null) {
+                continue;
             }
+
+            // Combine date and time into LocalDateTime
+            LocalDateTime finishedDateTime = LocalDateTime.of(matchingReport.getFinishedDate(), matchingReport.getEndTime());
+
+            // Calculate duration in hours
+            Duration duration = Duration.between(repair.getSubmissionDate(), finishedDateTime);
+            long hours = duration.toHours();
+
+            // Build key
+            String key = repair.getAcademyId() + "-" +
+                         matchingReport.getFinishedDate().getYear() + "-" +
+                         matchingReport.getFinishedDate().getMonthValue();
+
+            groupedDurations.computeIfAbsent(key, k -> new ArrayList<>()).add(hours);
         }
 
         // Convert grouped results to list of maps
@@ -72,12 +93,12 @@ public class RepairAnalyticsService {
             results.add(result);
         }
 
-        // Optionally sort results by academyId, then year and month
-        results.sort(Comparator.comparing((Map<String, Object> m) -> (String) m.get("academyId"))
+        // Sort results
+        results.sort(Comparator
+                .comparing((Map<String, Object> m) -> (String) m.get("academyId"))
                 .thenComparing(m -> (Integer) m.get("year"))
                 .thenComparing(m -> (Integer) m.get("month")));
 
         return results;
     }
 }
-

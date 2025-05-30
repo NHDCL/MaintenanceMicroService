@@ -46,14 +46,33 @@ public class RepairReportController {
         return ResponseEntity.ok(saved);
     }
 
+    // @PutMapping("/{reportID}/end-time")
+    // public ResponseEntity<RepairReport> submitEndTime(
+    // @PathVariable String reportID,
+    // @RequestBody Map<String, String> requestBody) {
+
+    // String endTime = requestBody.get("endTime");
+
+    // RepairReport updated = repairReportService.updateEndTime(reportID,
+    // LocalTime.parse(endTime));
+
+    // return updated != null
+    // ? ResponseEntity.ok(updated)
+    // : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    // }
+
     @PutMapping("/{reportID}/end-time")
     public ResponseEntity<RepairReport> submitEndTime(
             @PathVariable String reportID,
             @RequestBody Map<String, String> requestBody) {
 
         String endTime = requestBody.get("endTime");
+        String finishedDate = requestBody.get("finishedDate");
 
-        RepairReport updated = repairReportService.updateEndTime(reportID, LocalTime.parse(endTime));
+        LocalTime parsedEndTime = endTime != null ? LocalTime.parse(endTime) : null;
+        LocalDate parsedFinishedDate = finishedDate != null ? LocalDate.parse(finishedDate) : null;
+
+        RepairReport updated = repairReportService.updateEndTime(reportID, parsedEndTime, parsedFinishedDate);
 
         return updated != null
                 ? ResponseEntity.ok(updated)
@@ -64,7 +83,7 @@ public class RepairReportController {
     @PutMapping("/complete/{reportID}")
     public ResponseEntity<RepairReport> completeRepairReport(
             @PathVariable String reportID,
-            @RequestParam(required = false) String finishedDate,
+            // @RequestParam(required = false) String finishedDate,
             @RequestParam int totalCost,
             @RequestParam String information,
             @RequestParam String partsUsed,
@@ -72,8 +91,8 @@ public class RepairReportController {
             @RequestParam(value = "images", required = false) List<MultipartFile> imageFiles) {
 
         RepairReport updatedData = new RepairReport();
-        if (finishedDate != null)
-            updatedData.setFinishedDate(LocalDate.parse(finishedDate));
+        // if (finishedDate != null)
+        //     updatedData.setFinishedDate(LocalDate.parse(finishedDate));
         updatedData.setTotalCost(totalCost);
         updatedData.setInformation(information);
         updatedData.setPartsUsed(partsUsed);

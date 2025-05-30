@@ -15,6 +15,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +63,8 @@ public class RepairReportServiceImpl implements RepairReportService {
                     if (response.getStatusCode().is2xxSuccessful()) {
                         System.out.println("✅ Asset status updated successfully.");
                     } else {
-                        System.err.println("⚠️ Asset status update failed with status code: " + response.getStatusCode());
+                        System.err
+                                .println("⚠️ Asset status update failed with status code: " + response.getStatusCode());
                     }
                 } catch (Exception e) {
                     System.err.println("❌ Failed to update asset status: " + e.getMessage());
@@ -73,17 +75,34 @@ public class RepairReportServiceImpl implements RepairReportService {
         }
 
         return savedReport;
-    
+
     }
 
+    // @Override
+    // public RepairReport updateEndTime(String reportID, LocalTime endTime) {
+    // Optional<RepairReport> optional = repairReportRepository.findById(reportID);
+    // if (optional.isEmpty())
+    // return null;
+
+    // RepairReport existing = optional.get();
+    // existing.setEndTime(endTime);
+    // return repairReportRepository.save(existing);
+    // }
     @Override
-    public RepairReport updateEndTime(String reportID, LocalTime endTime) {
+    public RepairReport updateEndTime(String reportID, LocalTime endTime, LocalDate finishedDate) {
         Optional<RepairReport> optional = repairReportRepository.findById(reportID);
         if (optional.isEmpty())
             return null;
 
         RepairReport existing = optional.get();
-        existing.setEndTime(endTime);
+
+        if (endTime != null) {
+            existing.setEndTime(endTime);
+        }
+        if (finishedDate != null) {
+            existing.setFinishedDate(finishedDate);
+        }
+
         return repairReportRepository.save(existing);
     }
 
@@ -97,9 +116,9 @@ public class RepairReportServiceImpl implements RepairReportService {
 
         RepairReport existing = optional.get();
 
-        if (updatedData.getFinishedDate() != null) {
-            existing.setFinishedDate(updatedData.getFinishedDate());
-        }
+        // if (updatedData.getFinishedDate() != null) {
+        //     existing.setFinishedDate(updatedData.getFinishedDate());
+        // }
         if (updatedData.getTotalCost() != 0) {
             existing.setTotalCost(updatedData.getTotalCost());
         }

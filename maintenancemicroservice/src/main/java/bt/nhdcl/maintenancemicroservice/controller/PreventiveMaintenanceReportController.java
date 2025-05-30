@@ -36,13 +36,32 @@ public class PreventiveMaintenanceReportController {
     }
 
     // 2. Submit end time
+    // @PutMapping("/{maintenanceReportID}/end-time")
+    // public ResponseEntity<PreventiveMaintenanceReport> submitEndTime(
+    // @PathVariable String maintenanceReportID,
+    // @RequestBody Map<String, String> requestBody) {
+
+    // String endTime = requestBody.get("endTime");
+    // PreventiveMaintenanceReport updated =
+    // service.updateEndTime(maintenanceReportID, LocalTime.parse(endTime));
+
+    // return updated != null
+    // ? ResponseEntity.ok(updated)
+    // : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    // }
     @PutMapping("/{maintenanceReportID}/end-time")
     public ResponseEntity<PreventiveMaintenanceReport> submitEndTime(
             @PathVariable String maintenanceReportID,
             @RequestBody Map<String, String> requestBody) {
 
         String endTime = requestBody.get("endTime");
-        PreventiveMaintenanceReport updated = service.updateEndTime(maintenanceReportID, LocalTime.parse(endTime));
+        String finishedDate = requestBody.get("finishedDate");
+
+        LocalTime parsedEndTime = endTime != null ? LocalTime.parse(endTime) : null;
+        LocalDate parsedFinishedDate = finishedDate != null ? LocalDate.parse(finishedDate) : null;
+
+        PreventiveMaintenanceReport updated = service.updateEndTime(maintenanceReportID, parsedEndTime,
+                parsedFinishedDate);
 
         return updated != null
                 ? ResponseEntity.ok(updated)
@@ -53,7 +72,7 @@ public class PreventiveMaintenanceReportController {
     @PutMapping("/complete/{maintenanceReportID}")
     public ResponseEntity<PreventiveMaintenanceReport> completeReport(
             @PathVariable String maintenanceReportID,
-            @RequestParam(required = false) String finishedDate,
+            // @RequestParam(required = false) String finishedDate,
             @RequestParam int totalCost,
             @RequestParam String information,
             @RequestParam String partsUsed,
@@ -61,8 +80,8 @@ public class PreventiveMaintenanceReportController {
             @RequestParam(value = "images", required = false) List<MultipartFile> imageFiles) {
 
         PreventiveMaintenanceReport updatedData = new PreventiveMaintenanceReport();
-        if (finishedDate != null)
-            updatedData.setFinishedDate(LocalDate.parse(finishedDate));
+        // if (finishedDate != null)
+        //     updatedData.setFinishedDate(LocalDate.parse(finishedDate));
 
         updatedData.setTotalCost(totalCost);
         updatedData.setInformation(information);
@@ -120,8 +139,8 @@ public class PreventiveMaintenanceReportController {
 
     // Update a Maintenance Report
     @PutMapping("/{id}")
-    public ResponseEntity<PreventiveMaintenanceReport> updateReport(@PathVariable String id, 
-                                                                    @RequestBody PreventiveMaintenanceReport updatedReport) {
+    public ResponseEntity<PreventiveMaintenanceReport> updateReport(@PathVariable String id,
+            @RequestBody PreventiveMaintenanceReport updatedReport) {
         PreventiveMaintenanceReport report = service.updateReport(id, updatedReport);
         return report != null ? ResponseEntity.ok(report) : ResponseEntity.notFound().build();
     }
@@ -134,7 +153,8 @@ public class PreventiveMaintenanceReportController {
     }
 
     @GetMapping("/by-maintenance-id/{id}")
-    public List<PreventiveMaintenanceReport> getReportsByPreventiveMaintenanceID(@PathVariable("id") String preventiveMaintenanceID) {
+    public List<PreventiveMaintenanceReport> getReportsByPreventiveMaintenanceID(
+            @PathVariable("id") String preventiveMaintenanceID) {
         return service.getReportsByPreventiveMaintenanceID(preventiveMaintenanceID);
     }
 }

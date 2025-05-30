@@ -27,45 +27,54 @@ public class MaintenanceCostService {
     public List<CombinedMaintenanceCostResult> getAllMaintenanceCosts() {
         List<PreventiveMaintenance> preventives = preventiveRepo.findAll();
         List<RepairReport> repairs = repairRepo.findAll();
-    
+
         Map<String, CombinedMaintenanceCostResult> costMap = new HashMap<>();
-    
-        // Preventive maintenance + reports
+
+        // Preventive maintenance
         for (PreventiveMaintenance p : preventives) {
-            // Corrected method name here
-            List<PreventiveMaintenanceReport> reports = preventiveReportRepo.findByPreventiveMaintenanceID(p.getMaintenanceID()); // Use the correct method
-    
-            for (PreventiveMaintenanceReport r : reports) {
-                String key = p.getMaintenanceID() + "-" + r.getFinishedDate().getYear() + "-" + r.getFinishedDate().getMonthValue();
-    
-                double combined = r.getTotalCost() + (p.getAddCost() != 0 ? p.getAddCost() : 0);
-                costMap.merge(key,
-                        new CombinedMaintenanceCostResult(p.getAcademyId(), r.getFinishedDate().getYear(),
-                                r.getFinishedDate().getMonthValue(), combined),
-                        (oldVal, newVal) -> {
-                            oldVal.setTotalCost(oldVal.getTotalCost() + newVal.getTotalCost());
-                            return oldVal;
-                        });
-            }
-        }
-    
-        // Repair reports
-        for (RepairReport r : repairs) {
-            double addCost = (r.getTotalCost() != 0) ? r.getTotalCost() : 0; // Correcting the addCost reference
-    
-            String key = r.getRepairReportID() + "-" + r.getFinishedDate().getYear() + "-" + r.getFinishedDate().getMonthValue(); // Fix here
-            double combined = r.getTotalCost() + addCost;
-    
+            List<PreventiveMaintenanceReport> reports = preventiveReportRepo.findByPreventiveMaintenanceID(p.getMaintenanceID());
+
+            if (reports == null || reports.size() != 1) continue;
+
+            PreventiveMaintenanceReport r = reports.get(0);
+
+            if (r.getFinishedDate() == null || p.getAcademyId() == null) continue;
+
+            String key = p.getMaintenanceID() + "-" + r.getFinishedDate().getYear() + "-" + r.getFinishedDate().getMonthValue();
+
+            double combined = r.getTotalCost() + p.getAddCost();
+
             costMap.merge(key,
-                    new CombinedMaintenanceCostResult(r.getRepairReportID(), r.getFinishedDate().getYear(),
-                            r.getFinishedDate().getMonthValue(), combined),
+                    new CombinedMaintenanceCostResult(
+                            p.getAcademyId(),
+                            r.getFinishedDate().getYear(),
+                            r.getFinishedDate().getMonthValue(),
+                            combined),
                     (oldVal, newVal) -> {
                         oldVal.setTotalCost(oldVal.getTotalCost() + newVal.getTotalCost());
                         return oldVal;
                     });
         }
-    
+
+        // Repair reports
+        for (RepairReport r : repairs) {
+            if (r.getFinishedDate() == null || r.getRepairReportID() == null) continue;
+
+            String key = r.getRepairReportID() + "-" + r.getFinishedDate().getYear() + "-" + r.getFinishedDate().getMonthValue();
+
+            // Simulate one-report-per-ID logic (assuming unique ID = one report)
+            if (costMap.containsKey(key)) continue;
+
+            double totalCost = r.getTotalCost();
+
+            costMap.put(key,
+                    new CombinedMaintenanceCostResult(
+                            r.getRepairReportID(),
+                            r.getFinishedDate().getYear(),
+                            r.getFinishedDate().getMonthValue(),
+                            totalCost));
+        }
+
         return new ArrayList<>(costMap.values());
     }
-    
 }
